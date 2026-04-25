@@ -12,7 +12,14 @@ trap "echo -e '\n🛑 Shutting down services...'; kill 0" EXIT
 echo "📦 Starting Backend Server..."
 cd CIVIC-REZO-Backend
 npm run dev &
-cd ..
+
+# 1.5 Start Python Services in the background
+echo "🐍 Starting Python Services..."
+cd python_services
+source venv/bin/activate
+./venv/bin/python distilbert_emotion_service.py &
+./venv/bin/python gradcam_service.py &
+cd ../..
 
 # 2. Wait 3 seconds so the backend logs don't mess up the Expo QR code drawing
 sleep 3

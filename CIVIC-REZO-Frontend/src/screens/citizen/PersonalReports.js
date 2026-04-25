@@ -85,67 +85,91 @@ const PersonalReports = ({ navigation }) => {
     setShowTrackingModal(true);
   };
 
-  const renderTrackingStage = (stage, isActive, isCompleted, isLast) => {
-    const getStageColor = () => {
-      if (isCompleted) return '#1A1A1A';
-      if (isActive) return '#1A1A1A';
-      return '#D1D5DB';
-    };
+  const getStageTypeIcon = (stageName) => {
+    const n = (stageName || '').toLowerCase();
+    if (n.includes('submit') || n.includes('receiv')) return 'document-text-outline';
+    if (n.includes('review') || n.includes('assess')) return 'eye-outline';
+    if (n.includes('assign') || n.includes('officer')) return 'person-add-outline';
+    if (n.includes('inspect') || n.includes('site')) return 'search-outline';
+    if (n.includes('work') || n.includes('repair') || n.includes('fix')) return 'construct-outline';
+    if (n.includes('complet') || n.includes('resolv') || n.includes('close')) return 'checkmark-done-outline';
+    return 'ellipse-outline';
+  };
 
-    const getStageIcon = () => {
-      if (isCompleted) return 'checkmark-circle';
-      if (isActive) return 'radio-button-on';
-      return 'radio-button-off';
-    };
+  const renderTrackingStage = (stage, isActive, isCompleted, isLast) => {
+    const circleStyle = isCompleted
+      ? { bg: '#1A1A1A', border: '#1A1A1A', iconColor: '#fff' }
+      : isActive
+      ? { bg: '#374151', border: '#374151', iconColor: '#fff' }
+      : { bg: '#F9FAFB', border: '#E5E7EB', iconColor: '#9CA3AF' };
+
+    const nameColor = isCompleted ? '#111827' : isActive ? '#1A1A1A' : '#9CA3AF';
+    const cardBg    = isActive ? '#F8FAFC' : '#FAFAFA';
+    const cardBorder = isActive ? '#D1D5DB' : '#F3F4F6';
 
     return (
       <View key={stage.id} style={styles.trackingStage}>
+        {/* Left: circle + connector */}
         <View style={styles.stageIconContainer}>
-          <Ionicons 
-            name={getStageIcon()} 
-            size={24} 
-            color={getStageColor()} 
-          />
+          <View style={[
+            styles.stageCircle,
+            { backgroundColor: circleStyle.bg, borderColor: circleStyle.border },
+          ]}>
+            <Ionicons
+              name={isCompleted ? 'checkmark' : getStageTypeIcon(stage.name)}
+              size={14}
+              color={circleStyle.iconColor}
+            />
+          </View>
           {!isLast && (
             <View style={[
-              styles.stageLine, 
-              { backgroundColor: isCompleted ? '#1A1A1A' : '#D1D5DB' }
+              styles.stageLine,
+              { backgroundColor: isCompleted ? '#1A1A1A' : '#E5E7EB' },
             ]} />
           )}
         </View>
-        
-        <View style={styles.stageContent}>
+
+        {/* Right: card */}
+        <View style={[styles.stageCard, { backgroundColor: cardBg, borderColor: cardBorder }]}>
           <View style={styles.stageHeader}>
-            <Text style={[styles.stageName, { color: getStageColor() }]}>
-              {stage.icon} {stage.name}
+            <Text style={[styles.stageName, { color: nameColor, flex: 1 }]}>
+              {stage.name}
             </Text>
-            {stage.date && (
+            {isActive && (
+              <View style={styles.activeChip}>
+                <Text style={styles.activeChipText}>Active</Text>
+              </View>
+            )}
+            {isCompleted && stage.date && (
               <Text style={styles.stageDate}>
-                {new Date(stage.date).toLocaleDateString()}
+                {new Date(stage.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
               </Text>
             )}
           </View>
-          
-          <Text style={styles.stageDescription}>
-            {stage.description}
-          </Text>
-          
-          {stage.officer && (
-            <Text style={styles.stageAssignment}>
-              Officer: {stage.officer}
-            </Text>
-          )}
-          
-          {stage.contractor && (
-            <Text style={styles.stageAssignment}>
-              Contractor: {stage.contractor}
-            </Text>
-          )}
-          
-          {stage.estimatedCost && (
-            <Text style={styles.stageAssignment}>
-              Estimated Cost: ₹{stage.estimatedCost}
-            </Text>
+
+          <Text style={styles.stageDescription}>{stage.description}</Text>
+
+          {(stage.officer || stage.contractor || stage.estimatedCost) && (
+            <View style={styles.stageMetaGroup}>
+              {stage.officer && (
+                <View style={styles.stageMetaRow}>
+                  <Ionicons name="person-circle-outline" size={12} color="#6B7280" />
+                  <Text style={styles.stageAssignment}>Officer: {stage.officer}</Text>
+                </View>
+              )}
+              {stage.contractor && (
+                <View style={styles.stageMetaRow}>
+                  <Ionicons name="construct-outline" size={12} color="#6B7280" />
+                  <Text style={styles.stageAssignment}>Contractor: {stage.contractor}</Text>
+                </View>
+              )}
+              {stage.estimatedCost && (
+                <View style={styles.stageMetaRow}>
+                  <Ionicons name="cash-outline" size={12} color="#6B7280" />
+                  <Text style={styles.stageAssignment}>Est. Cost: ₹{stage.estimatedCost}</Text>
+                </View>
+              )}
+            </View>
           )}
         </View>
       </View>
@@ -218,15 +242,16 @@ const PersonalReports = ({ navigation }) => {
         </View>
         
         <View style={styles.progressIndicator}>
-          <Text style={styles.progressText}>
-            Stage {report.currentStage}/5
-          </Text>
+          <View style={styles.progressLabelRow}>
+            <Ionicons name="layers-outline" size={12} color="#6B7280" />
+            <Text style={styles.progressText}>Stage {report.currentStage} of 5</Text>
+          </View>
           <View style={styles.progressBar}>
             <View style={[
               styles.progressFill,
-              { 
+              {
                 width: `${(report.currentStage / 5) * 100}%`,
-                backgroundColor: getStatusColor(report.status)
+                backgroundColor: getStatusColor(report.status),
               }
             ]} />
           </View>
@@ -561,24 +586,27 @@ const styles = StyleSheet.create({
     color: '#95a5a6',
   },
   progressIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 10,
   },
+  progressLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 5,
+  },
   progressText: {
-    fontSize: 12,
-    color: '#7f8c8d',
-    marginRight: 10,
+    fontSize: 11,
+    color: '#6B7280',
+    fontWeight: '500',
   },
   progressBar: {
-    flex: 1,
-    height: 4,
-    backgroundColor: '#ecf0f1',
-    borderRadius: 2,
+    height: 5,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 3,
   },
   progressFill: {
     height: '100%',
-    borderRadius: 2,
+    borderRadius: 3,
   },
   trackingButton: {
     flexDirection: 'row',
@@ -663,16 +691,34 @@ const styles = StyleSheet.create({
   },
   trackingStage: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: 4,
   },
   stageIconContainer: {
     alignItems: 'center',
-    marginRight: 15,
+    width: 34,
+    marginRight: 10,
+  },
+  stageCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   stageLine: {
     width: 2,
     flex: 1,
-    marginTop: 8,
+    minHeight: 16,
+    marginVertical: 4,
+    borderRadius: 1,
+  },
+  stageCard: {
+    flex: 1,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+    borderWidth: 1,
   },
   stageContent: {
     flex: 1,
@@ -681,25 +727,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 4,
   },
   stageName: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  activeChip: {
+    backgroundColor: '#1A1A1A',
+    borderRadius: 20,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  activeChipText: {
+    fontSize: 10,
+    color: '#fff',
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
   stageDate: {
-    fontSize: 12,
-    color: '#7f8c8d',
+    fontSize: 11,
+    color: '#9CA3AF',
+    fontWeight: '500',
   },
   stageDescription: {
-    fontSize: 14,
-    color: '#7f8c8d',
+    fontSize: 12,
+    color: '#9CA3AF',
     marginBottom: 5,
+    lineHeight: 17,
+  },
+  stageMetaGroup: {
+    gap: 3,
+  },
+  stageMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   stageAssignment: {
-    fontSize: 12,
-    color: '#374151',
-    marginBottom: 2,
+    fontSize: 11,
+    color: '#6B7280',
   },
 });
 
