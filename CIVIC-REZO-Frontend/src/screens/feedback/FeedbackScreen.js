@@ -8,14 +8,14 @@ import {
   Alert,
   ScrollView,
   SafeAreaView,
-  ActivityIndicator
+  ActivityIndicator,
+  StatusBar,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const FeedbackScreen = ({ route, navigation }) => {
   const { complaintId, complaintTitle } = route.params || {};
-  
+
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [improvements, setImprovements] = useState('');
@@ -32,11 +32,11 @@ const FeedbackScreen = ({ route, navigation }) => {
     }
 
     setSubmitting(true);
-    
+
     // Simulate processing time
     setTimeout(() => {
       setSubmitting(false);
-      
+
       Alert.alert(
         'Thank You!',
         'Your feedback has been submitted successfully. It helps us improve our service.',
@@ -53,7 +53,7 @@ const FeedbackScreen = ({ route, navigation }) => {
           }
         ]
       );
-    }, 1000); // 1 second delay to simulate processing
+    }, 1000);
   };
 
   const handleSkip = () => {
@@ -88,8 +88,8 @@ const FeedbackScreen = ({ route, navigation }) => {
         >
           <Ionicons
             name={i <= rating ? 'star' : 'star-outline'}
-            size={40}
-            color={i <= rating ? '#f39c12' : '#bdc3c7'}
+            size={36}
+            color={i <= rating ? '#D97706' : '#D4D4D4'}
           />
         </TouchableOpacity>
       );
@@ -99,52 +99,53 @@ const FeedbackScreen = ({ route, navigation }) => {
 
   const getRatingText = () => {
     switch (rating) {
-      case 1: return 'Poor - Needs significant improvement';
-      case 2: return 'Fair - Some improvements needed';
-      case 3: return 'Good - Satisfactory experience';
-      case 4: return 'Very Good - Minor improvements possible';
-      case 5: return 'Excellent - Great experience!';
-      default: return 'Please rate your experience';
+      case 1: return 'Poor — Needs significant improvement';
+      case 2: return 'Fair — Some improvements needed';
+      case 3: return 'Good — Satisfactory experience';
+      case 4: return 'Very Good — Minor improvements possible';
+      case 5: return 'Excellent — Great experience!';
+      default: return 'Tap a star to rate';
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={['#3498db', '#2980b9']}
-        style={styles.header}
+      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={handleSkip}>
+          <Text style={styles.skipText}>Skip</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Feedback</Text>
+        <View style={{ width: 40 }} />
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.headerContent}>
-          <TouchableOpacity
-            onPress={handleSkip}
-            style={styles.skipButton}
-          >
-            <Text style={styles.skipText}>Skip</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Feedback</Text>
-          <View style={styles.skipButton} />
-        </View>
-      </LinearGradient>
-
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <View style={styles.successMessage}>
-          <Ionicons name="checkmark-circle" size={60} color="#27ae60" />
-          <Text style={styles.successTitle}>Complaint Submitted!</Text>
+        {/* Success Card */}
+        <View style={styles.successCard}>
+          <View style={styles.successIconWrap}>
+            <Ionicons name="checkmark-circle" size={40} color="#059669" />
+          </View>
+          <Text style={styles.successTitle}>Complaint Submitted</Text>
           <Text style={styles.successSubtitle}>
-            Thank you for reporting: {complaintTitle}
+            Thank you for reporting: {complaintTitle || 'your concern'}
           </Text>
         </View>
 
-        <View style={styles.feedbackCard}>
-          <Text style={styles.sectionTitle}>How was your experience?</Text>
-          <Text style={styles.sectionSubtitle}>
-            Your feedback helps us improve our complaint submission process
+        {/* Rating Card */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>How was your experience?</Text>
+          <Text style={styles.cardSubtitle}>
+            Your feedback helps us improve the complaint process
           </Text>
 
-          <View style={styles.ratingContainer}>
-            <View style={styles.starsContainer}>
-              {renderStars()}
-            </View>
+          <View style={styles.ratingWrap}>
+            <View style={styles.starsRow}>{renderStars()}</View>
             <Text style={styles.ratingText}>{getRatingText()}</Text>
           </View>
 
@@ -156,44 +157,48 @@ const FeedbackScreen = ({ route, navigation }) => {
               style={styles.textInput}
               multiline
               numberOfLines={3}
-              placeholder="Share your overall experience with the complaint submission process..."
+              placeholder="Share your overall experience..."
               value={feedback}
               onChangeText={setFeedback}
               maxLength={500}
+              placeholderTextColor="#A3A3A3"
             />
             <Text style={styles.charCount}>{feedback.length}/500</Text>
           </View>
 
           <View style={styles.inputSection}>
             <Text style={styles.inputLabel}>
-              Suggestions for Improvement <Text style={styles.optional}>(Optional)</Text>
+              Suggestions <Text style={styles.optional}>(Optional)</Text>
             </Text>
             <TextInput
               style={styles.textInput}
               multiline
               numberOfLines={3}
-              placeholder="How can we make the complaint submission process better? Any features you'd like to see?"
+              placeholder="How can we improve?"
               value={improvements}
               onChangeText={setImprovements}
               maxLength={500}
+              placeholderTextColor="#A3A3A3"
             />
             <Text style={styles.charCount}>{improvements.length}/500</Text>
           </View>
         </View>
       </ScrollView>
 
-      <View style={styles.bottomActions}>
+      {/* Bottom Action */}
+      <View style={styles.bottomBar}>
         <TouchableOpacity
-          style={[styles.submitButton, (rating === 0 || submitting) && styles.submitButtonDisabled]}
+          style={[styles.submitButton, (rating === 0 || submitting) && styles.submitDisabled]}
           onPress={handleSubmitFeedback}
           disabled={rating === 0 || submitting}
+          activeOpacity={0.8}
         >
           {submitting ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <>
-              <Ionicons name="send" size={20} color="#fff" />
-              <Text style={styles.submitButtonText}>Submit Feedback</Text>
+              <Ionicons name="send-outline" size={18} color="#fff" />
+              <Text style={styles.submitText}>Submit Feedback</Text>
             </>
           )}
         </TouchableOpacity>
@@ -205,151 +210,149 @@ const FeedbackScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FAFAFA',
   },
   header: {
-    paddingTop: 10,
-    paddingBottom: 20,
-  },
-  headerContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-  },
-  skipButton: {
-    width: 60,
+    paddingHorizontal: 24,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
   },
   skipText: {
-    color: '#fff',
-    fontSize: 16,
+    fontSize: 15,
+    color: '#737373',
     fontWeight: '500',
   },
   headerTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#171717',
   },
-  content: {
+  scrollView: {
     flex: 1,
-    paddingHorizontal: 20,
   },
-  successMessage: {
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    paddingBottom: 20,
+  },
+  successCard: {
     alignItems: 'center',
-    paddingVertical: 30,
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    marginVertical: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 28,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#F5F5F5',
+  },
+  successIconWrap: {
+    marginBottom: 12,
   },
   successTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#27ae60',
-    marginTop: 15,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#059669',
+    marginBottom: 4,
   },
   successSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginTop: 5,
-    paddingHorizontal: 20,
-  },
-  feedbackCard: {
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 5,
-  },
-  sectionSubtitle: {
     fontSize: 14,
-    color: '#7f8c8d',
-    marginBottom: 25,
+    color: '#737373',
+    textAlign: 'center',
+    lineHeight: 20,
   },
-  ratingContainer: {
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 20,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#F5F5F5',
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#171717',
+    marginBottom: 4,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    color: '#A3A3A3',
+    marginBottom: 24,
+  },
+  ratingWrap: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 28,
   },
-  starsContainer: {
+  starsRow: {
     flexDirection: 'row',
     marginBottom: 10,
   },
   starButton: {
-    marginHorizontal: 5,
-    padding: 5,
+    marginHorizontal: 4,
+    padding: 4,
   },
   ratingText: {
-    fontSize: 16,
-    color: '#34495e',
+    fontSize: 14,
+    color: '#404040',
     fontWeight: '500',
     textAlign: 'center',
   },
   inputSection: {
-    marginBottom: 20,
+    marginBottom: 18,
   },
   inputLabel: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#2c3e50',
+    color: '#404040',
     marginBottom: 8,
   },
   optional: {
-    fontSize: 14,
-    fontWeight: 'normal',
-    color: '#95a5a6',
+    fontSize: 13,
+    fontWeight: '400',
+    color: '#A3A3A3',
   },
   textInput: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#E5E5E5',
     borderRadius: 10,
-    padding: 12,
-    fontSize: 16,
+    padding: 14,
+    fontSize: 15,
     textAlignVertical: 'top',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FAFAFA',
     minHeight: 80,
+    color: '#171717',
   },
   charCount: {
-    fontSize: 12,
-    color: '#95a5a6',
+    fontSize: 11,
+    color: '#A3A3A3',
     textAlign: 'right',
-    marginTop: 5,
+    marginTop: 4,
   },
-  bottomActions: {
+  bottomBar: {
     padding: 20,
-    backgroundColor: '#fff',
+    paddingHorizontal: 24,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
+    borderTopColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
   },
   submitButton: {
-    backgroundColor: '#27ae60',
-    borderRadius: 10,
-    padding: 15,
+    backgroundColor: '#0F766E',
+    borderRadius: 12,
+    paddingVertical: 15,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  submitButtonDisabled: {
-    backgroundColor: '#bdc3c7',
+  submitDisabled: {
+    backgroundColor: '#D4D4D4',
   },
-  submitButtonText: {
-    color: '#fff',
+  submitText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     marginLeft: 8,
   },
 });

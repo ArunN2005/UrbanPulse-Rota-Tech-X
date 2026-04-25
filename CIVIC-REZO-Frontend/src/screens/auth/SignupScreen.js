@@ -5,10 +5,15 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  SafeAreaView,
   Alert,
   ActivityIndicator,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient, makeApiCall } from '../../../config/supabase';
@@ -24,6 +29,7 @@ const SignupScreen = ({ navigation }) => {
     address: '',
   });
   const [loading, setLoading] = useState(false);
+  const [focused, setFocused] = useState(null);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -71,7 +77,7 @@ const SignupScreen = ({ navigation }) => {
         await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
 
         Alert.alert('Success', 'Account created successfully!');
-        
+
         // Navigate based on user type
         if (response.data.user.userType === 'admin') {
           navigation.replace('EnhancedAdminDashboard');
@@ -86,173 +92,198 @@ const SignupScreen = ({ navigation }) => {
     }
   };
 
+  const renderField = (field, placeholder, icon, options = {}) => (
+    <View style={styles.fieldGroup}>
+      <Text style={styles.label}>{options.label || placeholder}</Text>
+      <View style={[styles.inputWrap, focused === field && styles.inputFocused]}>
+        <Ionicons name={icon} size={18} color={focused === field ? '#0F766E' : '#A3A3A3'} />
+        <TextInput
+          style={[styles.input, options.multiline && { textAlignVertical: 'top' }]}
+          placeholder={placeholder}
+          value={formData[field]}
+          onChangeText={(value) => handleInputChange(field, value)}
+          placeholderTextColor="#A3A3A3"
+          onFocus={() => setFocused(field)}
+          onBlur={() => setFocused(null)}
+          keyboardType={options.keyboardType || 'default'}
+          autoCapitalize={options.autoCapitalize || 'sentences'}
+          secureTextEntry={options.secure}
+          multiline={options.multiline}
+          numberOfLines={options.numberOfLines}
+        />
+      </View>
+    </View>
+  );
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Join CivicStack Community</Text>
-
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Full Name *"
-            value={formData.fullName}
-            onChangeText={(value) => handleInputChange('fullName', value)}
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Email *"
-            value={formData.email}
-            onChangeText={(value) => handleInputChange('email', value)}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Phone Number *"
-            value={formData.phoneNumber}
-            onChangeText={(value) => handleInputChange('phoneNumber', value)}
-            keyboardType="phone-pad"
-          />
-
-          <View style={styles.pickerContainer}>
-            <Text style={styles.pickerLabel}>User Type *</Text>
-            <Picker
-              selectedValue={formData.userType}
-              style={styles.picker}
-              onValueChange={(value) => handleInputChange('userType', value)}
-            >
-              <Picker.Item label="Citizen" value="citizen" />
-              <Picker.Item label="Admin" value="admin" />
-            </Picker>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.header}>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>Join the CivicStack community</Text>
           </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Address (Optional)"
-            value={formData.address}
-            onChangeText={(value) => handleInputChange('address', value)}
-            multiline
-            numberOfLines={3}
-          />
+          <View style={styles.form}>
+            {renderField('fullName', 'Full name', 'person-outline', { label: 'Full Name *' })}
+            {renderField('email', 'you@example.com', 'mail-outline', { label: 'Email *', keyboardType: 'email-address', autoCapitalize: 'none' })}
+            {renderField('phoneNumber', '+91 XXXXX XXXXX', 'call-outline', { label: 'Phone *', keyboardType: 'phone-pad' })}
 
-          <TextInput
-            style={styles.input}
-            placeholder="Password *"
-            value={formData.password}
-            onChangeText={(value) => handleInputChange('password', value)}
-            secureTextEntry
-          />
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>User Type *</Text>
+              <View style={styles.pickerWrap}>
+                <Ionicons name="people-outline" size={18} color="#A3A3A3" style={{ marginLeft: 14 }} />
+                <Picker
+                  selectedValue={formData.userType}
+                  style={styles.picker}
+                  onValueChange={(value) => handleInputChange('userType', value)}
+                >
+                  <Picker.Item label="Citizen" value="citizen" />
+                  <Picker.Item label="Admin" value="admin" />
+                </Picker>
+              </View>
+            </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password *"
-            value={formData.confirmPassword}
-            onChangeText={(value) => handleInputChange('confirmPassword', value)}
-            secureTextEntry
-          />
+            {renderField('address', 'Your address', 'location-outline', { label: 'Address (Optional)', multiline: true, numberOfLines: 2 })}
+            {renderField('password', 'Min. 6 characters', 'lock-closed-outline', { label: 'Password *', secure: true })}
+            {renderField('confirmPassword', 'Re-enter password', 'lock-closed-outline', { label: 'Confirm Password *', secure: true })}
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSignup}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Create Account</Text>
-            )}
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.signupButton, loading && styles.signupDisabled]}
+              onPress={handleSignup}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.signupText}>Create Account</Text>
+              )}
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('Login')}
-          >
-            <Text style={styles.linkText}>
-              Already have an account? Login
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </ScrollView>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Already have an account? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                <Text style={styles.footerLink}>Sign in</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FAFAFA',
   },
-  content: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 50,
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    paddingBottom: 32,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 32,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-    textAlign: 'center',
-    marginBottom: 8,
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#0A0A0A',
+    letterSpacing: -0.5,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 40,
+    fontSize: 15,
+    color: '#737373',
   },
   form: {
     width: '100%',
   },
+  fieldGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#404040',
+    marginBottom: 6,
+    marginLeft: 2,
+  },
+  inputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    paddingHorizontal: 14,
+    minHeight: 50,
+  },
+  inputFocused: {
+    borderColor: '#0F766E',
+    backgroundColor: '#FAFFFE',
+  },
   input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    fontSize: 16,
+    flex: 1,
+    fontSize: 15,
+    color: '#171717',
+    marginLeft: 10,
+    paddingVertical: 12,
   },
-  pickerContainer: {
-    backgroundColor: '#fff',
+  pickerWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    marginBottom: 15,
-  },
-  pickerLabel: {
-    fontSize: 16,
-    color: '#666',
-    paddingHorizontal: 15,
-    paddingTop: 10,
+    borderColor: '#E5E5E5',
+    overflow: 'hidden',
   },
   picker: {
+    flex: 1,
     height: 50,
+    color: '#171717',
   },
-  button: {
-    backgroundColor: '#2E7D32',
-    padding: 15,
-    borderRadius: 8,
+  signupButton: {
+    backgroundColor: '#0F766E',
+    borderRadius: 12,
+    paddingVertical: 15,
     alignItems: 'center',
-    marginBottom: 15,
+    marginTop: 8,
+    marginBottom: 24,
   },
-  buttonDisabled: {
-    backgroundColor: '#ccc',
+  signupDisabled: {
+    backgroundColor: '#A3A3A3',
   },
-  buttonText: {
-    color: '#fff',
+  signupText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
-  linkButton: {
-    alignItems: 'center',
-    marginTop: 10,
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
-  linkText: {
-    color: '#2E7D32',
-    fontSize: 16,
+  footerText: {
+    fontSize: 14,
+    color: '#737373',
+  },
+  footerLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0F766E',
   },
 });
 

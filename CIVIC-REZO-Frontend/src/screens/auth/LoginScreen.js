@@ -5,10 +5,15 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  SafeAreaView,
   Alert,
   ActivityIndicator,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient, makeApiCall } from '../../../config/supabase';
 
@@ -18,6 +23,7 @@ const LoginScreen = ({ navigation }) => {
     password: '',
   });
   const [loading, setLoading] = useState(false);
+  const [focused, setFocused] = useState(null);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -45,7 +51,7 @@ const LoginScreen = ({ navigation }) => {
         await AsyncStorage.setItem('userData', JSON.stringify(response.data.user));
 
         Alert.alert('Success', 'Login successful!');
-        
+
         // Navigate based on user type
         if (response.data.user.userType === 'admin') {
           navigation.replace('EnhancedAdminDashboard');
@@ -61,113 +67,170 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>CivicStack Login</Text>
-        <Text style={styles.subtitle}>Sign in to your account</Text>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.header}>
+            <Text style={styles.title}>CivicStack</Text>
+            <Text style={styles.subtitle}>Sign in to your account</Text>
+          </View>
 
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={formData.email}
-            onChangeText={(value) => handleInputChange('email', value)}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
+          <View style={styles.form}>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Email</Text>
+              <View style={[styles.inputWrap, focused === 'email' && styles.inputFocused]}>
+                <Ionicons name="mail-outline" size={18} color={focused === 'email' ? '#0F766E' : '#A3A3A3'} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="you@example.com"
+                  value={formData.email}
+                  onChangeText={(value) => handleInputChange('email', value)}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholderTextColor="#A3A3A3"
+                  onFocus={() => setFocused('email')}
+                  onBlur={() => setFocused(null)}
+                />
+              </View>
+            </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={formData.password}
-            onChangeText={(value) => handleInputChange('password', value)}
-            secureTextEntry
-          />
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Password</Text>
+              <View style={[styles.inputWrap, focused === 'password' && styles.inputFocused]}>
+                <Ionicons name="lock-closed-outline" size={18} color={focused === 'password' ? '#0F766E' : '#A3A3A3'} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter password"
+                  value={formData.password}
+                  onChangeText={(value) => handleInputChange('password', value)}
+                  secureTextEntry
+                  placeholderTextColor="#A3A3A3"
+                  onFocus={() => setFocused('password')}
+                  onBlur={() => setFocused(null)}
+                />
+              </View>
+            </View>
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Login</Text>
-            )}
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.loginButton, loading && styles.loginDisabled]}
+              onPress={handleLogin}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.loginText}>Sign In</Text>
+              )}
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('Signup')}
-          >
-            <Text style={styles.linkText}>
-              Don't have an account? Sign up
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </ScrollView>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Don't have an account? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+                <Text style={styles.footerLink}>Sign up</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#FAFAFA',
   },
-  content: {
-    flex: 1,
-    padding: 20,
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
     justifyContent: 'center',
-    minHeight: '100%',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 36,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-    textAlign: 'center',
-    marginBottom: 8,
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#0A0A0A',
+    letterSpacing: -0.5,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    marginBottom: 40,
+    fontSize: 15,
+    color: '#737373',
   },
   form: {
     width: '100%',
   },
-  input: {
-    backgroundColor: '#fff',
+  fieldGroup: {
+    marginBottom: 18,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#404040',
+    marginBottom: 6,
+    marginLeft: 2,
+  },
+  inputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 15,
-    fontSize: 16,
+    borderColor: '#E5E5E5',
+    paddingHorizontal: 14,
+    height: 50,
   },
-  button: {
-    backgroundColor: '#2E7D32',
-    padding: 15,
-    borderRadius: 8,
+  inputFocused: {
+    borderColor: '#0F766E',
+    backgroundColor: '#FAFFFE',
+  },
+  input: {
+    flex: 1,
+    fontSize: 15,
+    color: '#171717',
+    marginLeft: 10,
+  },
+  loginButton: {
+    backgroundColor: '#0F766E',
+    borderRadius: 12,
+    paddingVertical: 15,
     alignItems: 'center',
-    marginBottom: 15,
+    marginTop: 8,
+    marginBottom: 24,
   },
-  buttonDisabled: {
-    backgroundColor: '#ccc',
+  loginDisabled: {
+    backgroundColor: '#A3A3A3',
   },
-  buttonText: {
-    color: '#fff',
+  loginText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
-  linkButton: {
-    alignItems: 'center',
-    marginTop: 10,
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
-  linkText: {
-    color: '#2E7D32',
-    fontSize: 16,
+  footerText: {
+    fontSize: 14,
+    color: '#737373',
+  },
+  footerLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0F766E',
   },
 });
 

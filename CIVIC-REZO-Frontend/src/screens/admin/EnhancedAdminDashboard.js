@@ -8,13 +8,14 @@ import {
   Dimensions,
   RefreshControl,
   Alert,
+  SafeAreaView,
+  StatusBar,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient, makeApiCall } from '../../../config/supabase';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const EnhancedAdminDashboard = ({ navigation }) => {
   const [userData, setUserData] = useState(null);
@@ -49,9 +50,8 @@ const EnhancedAdminDashboard = ({ navigation }) => {
     try {
       setLoading(true);
       const response = await makeApiCall(`${apiClient.baseUrl}/api/admin-enhanced/dashboard/overview`);
-      
+
       if (response.success) {
-        // Handle the actual API response structure
         setDashboardData({
           overview: response.data.overview || {},
           topPriorityComplaints: response.data.topPriorityComplaints || [],
@@ -101,179 +101,172 @@ const EnhancedAdminDashboard = ({ navigation }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <LinearGradient colors={['#1e3c72', '#2a5298']} style={styles.loadingGradient}>
-          <Ionicons name="analytics" size={50} color="#fff" />
+      <SafeAreaView style={styles.loadingContainer}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+        <View style={styles.loadingContent}>
+          <Ionicons name="analytics-outline" size={40} color="#334155" />
           <Text style={styles.loadingText}>Loading Dashboard...</Text>
-        </LinearGradient>
-      </View>
+        </View>
+      </SafeAreaView>
     );
   }
 
   const { overview } = dashboardData;
 
+  const stats = [
+    { label: 'Total', value: overview.totalComplaints || 0, icon: 'document-text-outline', color: '#DC2626', bg: '#FEF2F2' },
+    { label: 'Pending', value: overview.pendingComplaints || 0, icon: 'time-outline', color: '#D97706', bg: '#FFFBEB' },
+    { label: 'In Progress', value: overview.inProgressComplaints || 0, icon: 'construct-outline', color: '#0284C7', bg: '#F0F9FF' },
+    { label: 'Resolved', value: overview.resolvedComplaints || 0, icon: 'checkmark-circle-outline', color: '#059669', bg: '#F0FDF4' },
+  ];
+
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={['#1e3c72', '#2a5298']} style={styles.header}>
-        <View style={styles.headerContent}>
-          <View>
-            <Text style={styles.greeting}>Welcome back,</Text>
-            <Text style={styles.adminName}>{userData?.full_name || 'Admin'}</Text>
-          </View>
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Ionicons name="log-out-outline" size={24} color="#fff" />
-          </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerLeft}>
+          <Text style={styles.greeting}>Welcome back,</Text>
+          <Text style={styles.adminName}>{userData?.full_name || userData?.fullName || 'Admin'}</Text>
         </View>
-      </LinearGradient>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn}>
+          <Ionicons name="log-out-outline" size={22} color="#DC2626" />
+        </TouchableOpacity>
+      </View>
 
       <ScrollView
-        style={styles.content}
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#334155']} />
         }
       >
-        {/* Overview Stats */}
-        <View style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>📊 Overview</Text>
+        {/* Stats Grid */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Overview</Text>
           <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <Ionicons name="document-text-outline" size={24} color="#e74c3c" />
-              <Text style={styles.statNumber}>{overview.totalComplaints || 0}</Text>
-              <Text style={styles.statLabel}>Total Complaints</Text>
-            </View>
-            
-            <View style={styles.statCard}>
-              <Ionicons name="hourglass-outline" size={24} color="#f39c12" />
-              <Text style={styles.statNumber}>{overview.pendingComplaints || 0}</Text>
-              <Text style={styles.statLabel}>Pending</Text>
-            </View>
-            
-            <View style={styles.statCard}>
-              <Ionicons name="construct-outline" size={24} color="#3498db" />
-              <Text style={styles.statNumber}>{overview.inProgressComplaints || 0}</Text>
-              <Text style={styles.statLabel}>In Progress</Text>
-            </View>
-            
-            <View style={styles.statCard}>
-              <Ionicons name="checkmark-circle-outline" size={24} color="#27ae60" />
-              <Text style={styles.statNumber}>{overview.resolvedComplaints || 0}</Text>
-              <Text style={styles.statLabel}>Resolved</Text>
-            </View>
+            {stats.map((stat, i) => (
+              <View key={i} style={styles.statCard}>
+                <View style={[styles.statIconWrap, { backgroundColor: stat.bg }]}>
+                  <Ionicons name={stat.icon} size={20} color={stat.color} />
+                </View>
+                <Text style={styles.statValue}>{stat.value}</Text>
+                <Text style={styles.statLabel}>{stat.label}</Text>
+              </View>
+            ))}
           </View>
 
-          <View style={styles.performanceStats}>
-            <View style={styles.performanceStat}>
-              <Text style={styles.performanceLabel}>Resolution Rate</Text>
-              <Text style={styles.performanceValue}>{overview.resolutionRate || 0}%</Text>
-            </View>
-            <View style={styles.performanceStat}>
-              <Text style={styles.performanceLabel}>Avg Resolution Time</Text>
-              <Text style={styles.performanceValue}>{overview.avgResolutionTime || 0}h</Text>
-            </View>
-            <View style={styles.performanceStat}>
-              <Text style={styles.performanceLabel}>Active Citizens</Text>
-              <Text style={styles.performanceValue}>{overview.activeUsers || 0}</Text>
-            </View>
+          {/* Performance */}
+          <View style={styles.perfRow}>
+            {[
+              { label: 'Resolution Rate', value: `${overview.resolutionRate || 0}%` },
+              { label: 'Avg Time', value: `${overview.avgResolutionTime || 0}h` },
+              { label: 'Active Users', value: `${overview.activeUsers || 0}` },
+            ].map((perf, i) => (
+              <View key={i} style={styles.perfItem}>
+                <Text style={styles.perfValue}>{perf.value}</Text>
+                <Text style={styles.perfLabel}>{perf.label}</Text>
+              </View>
+            ))}
           </View>
         </View>
 
         {/* Quick Actions */}
-        <View style={styles.actionsSection}>
-          <Text style={styles.sectionTitle}>⚡ Quick Actions</Text>
-          <View style={styles.actionGrid}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.actionsRow}>
             <TouchableOpacity style={styles.actionCard} onPress={navigateToPriorityQueue}>
-              <LinearGradient colors={['#ff6b6b', '#ee5a24']} style={styles.actionGradient}>
-                <Ionicons name="list-outline" size={28} color="#fff" />
-                <Text style={styles.actionTitle}>Priority Queue</Text>
-                <Text style={styles.actionSubtitle}>Manage complaints by priority</Text>
-              </LinearGradient>
+              <View style={[styles.actionIconWrap, { backgroundColor: '#FEF2F2' }]}>
+                <Ionicons name="list-outline" size={22} color="#DC2626" />
+              </View>
+              <Text style={styles.actionTitle}>Priority Queue</Text>
+              <Text style={styles.actionSubtitle}>Manage by priority</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionCard} onPress={navigateToCitizenManagement}>
-              <LinearGradient colors={['#4834d4', '#686de0']} style={styles.actionGradient}>
-                <Ionicons name="people-outline" size={28} color="#fff" />
-                <Text style={styles.actionTitle}>Citizen Management</Text>
-                <Text style={styles.actionSubtitle}>Manage user accounts</Text>
-              </LinearGradient>
+              <View style={[styles.actionIconWrap, { backgroundColor: '#F5F3FF' }]}>
+                <Ionicons name="people-outline" size={22} color="#7C3AED" />
+              </View>
+              <Text style={styles.actionTitle}>Citizens</Text>
+              <Text style={styles.actionSubtitle}>Manage users</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Top Priority Complaints */}
-        <View style={styles.prioritySection}>
-          <Text style={styles.sectionTitle}>🔥 High Priority Complaints</Text>
+        {/* High Priority Complaints */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>High Priority</Text>
+            <TouchableOpacity onPress={navigateToPriorityQueue}>
+              <Text style={styles.viewAllLink}>View All</Text>
+            </TouchableOpacity>
+          </View>
+
           {(dashboardData.topPriorityComplaints || []).length > 0 ? (
-            (dashboardData.topPriorityComplaints || []).slice(0, 3).map((complaint, index) => (
+            (dashboardData.topPriorityComplaints || []).slice(0, 3).map((complaint) => (
               <TouchableOpacity
                 key={complaint.id}
-                style={styles.priorityCard}
+                style={styles.priorityRow}
                 onPress={() => navigateToComplaintDetails(complaint.id)}
+                activeOpacity={0.7}
               >
-                <View style={styles.priorityHeader}>
-                  <View style={styles.priorityBadge}>
-                    <Text style={styles.priorityScore}>{(complaint.priority_score * 100).toFixed(0)}%</Text>
-                  </View>
-                  <View style={styles.priorityInfo}>
-                    <Text style={styles.priorityTitle} numberOfLines={2}>
-                      {complaint.category?.replace(/_/g, ' ').toUpperCase() || 'Complaint'}
-                    </Text>
-                    <Text style={styles.priorityLocation} numberOfLines={1}>
-                      📍 Priority Score: {complaint.priority_score || 'N/A'}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.priorityFooter}>
-                  <View style={styles.statusBadge}>
-                    <Text style={styles.statusText}>{complaint.status.toUpperCase()}</Text>
-                  </View>
-                  <Text style={styles.priorityDate}>
-                    {new Date(complaint.created_at).toLocaleDateString()}
+                <View style={styles.priorityBadge}>
+                  <Text style={styles.priorityScore}>
+                    {(complaint.priority_score * 100).toFixed(0)}
                   </Text>
+                </View>
+                <View style={styles.priorityInfo}>
+                  <Text style={styles.priorityTitle} numberOfLines={1}>
+                    {complaint.category?.replace(/_/g, ' ') || 'Complaint'}
+                  </Text>
+                  <Text style={styles.priorityMeta}>
+                    Score: {complaint.priority_score} · {new Date(complaint.created_at).toLocaleDateString()}
+                  </Text>
+                </View>
+                <View style={styles.statusPill}>
+                  <Text style={styles.statusPillText}>{complaint.status}</Text>
                 </View>
               </TouchableOpacity>
             ))
           ) : (
-            <View style={styles.emptyActivityCard}>
-              <Ionicons name="flame-outline" size={32} color="#95a5a6" />
-              <Text style={styles.emptyActivityText}>No high priority complaints</Text>
+            <View style={styles.emptyCard}>
+              <Ionicons name="flame-outline" size={28} color="#D4D4D4" />
+              <Text style={styles.emptyText}>No high priority complaints</Text>
             </View>
           )}
-          
-          <TouchableOpacity style={styles.viewAllButton} onPress={navigateToPriorityQueue}>
-            <Text style={styles.viewAllText}>View All Complaints</Text>
-            <Ionicons name="arrow-forward" size={16} color="#3498db" />
-          </TouchableOpacity>
         </View>
 
         {/* Location Hotspots */}
         {(dashboardData.locationHotspots || []).length > 0 && (
-          <View style={styles.hotspotsSection}>
-            <Text style={styles.sectionTitle}>🗺️ Complaint Hotspots</Text>
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Complaint Hotspots</Text>
             {(dashboardData.locationHotspots || []).slice(0, 3).map((hotspot, index) => (
-              <View key={index} style={styles.hotspotCard}>
-                <View style={styles.hotspotHeader}>
-                  <Ionicons name="location" size={20} color="#e74c3c" />
-                  <Text style={styles.hotspotLocation}>{hotspot.area_name}</Text>
+              <View key={index} style={styles.hotspotRow}>
+                <View style={styles.hotspotIconWrap}>
+                  <Ionicons name="location-outline" size={16} color="#DC2626" />
                 </View>
-                <Text style={styles.hotspotCount}>
-                  {hotspot.complaint_count} complaints in this area
-                </Text>
+                <View style={styles.hotspotInfo}>
+                  <Text style={styles.hotspotName}>{hotspot.area_name}</Text>
+                  <Text style={styles.hotspotCount}>{hotspot.complaint_count} complaints</Text>
+                </View>
               </View>
             ))}
           </View>
         )}
 
         {/* Recent Activity */}
-        <View style={styles.activitySection}>
-          <Text style={styles.sectionTitle}>📋 Recent Activity</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
           {(dashboardData.recentActivity || []).length > 0 ? (
             (dashboardData.recentActivity || []).slice(0, 5).map((activity, index) => (
-              <View key={activity.id || index} style={styles.activityItem}>
-                <View style={styles.activityIcon}>
-                  <Ionicons 
-                    name={getActivityIcon(activity.event_type)} 
-                    size={16} 
-                    color="#3498db" 
+              <View key={activity.id || index} style={styles.activityRow}>
+                <View style={styles.activityIconWrap}>
+                  <Ionicons
+                    name={getActivityIcon(activity.event_type)}
+                    size={16}
+                    color="#334155"
                   />
                 </View>
                 <View style={styles.activityContent}>
@@ -285,16 +278,16 @@ const EnhancedAdminDashboard = ({ navigation }) => {
               </View>
             ))
           ) : (
-            <View style={styles.emptyActivityCard}>
-              <Ionicons name="time-outline" size={32} color="#95a5a6" />
-              <Text style={styles.emptyActivityText}>No recent activity</Text>
+            <View style={styles.emptyCard}>
+              <Ionicons name="time-outline" size={28} color="#D4D4D4" />
+              <Text style={styles.emptyText}>No recent activity</Text>
             </View>
           )}
         </View>
 
-        <View style={styles.bottomPadding} />
+        <View style={{ height: 32 }} />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -314,182 +307,203 @@ const formatActivityTime = (timestamp) => {
   const now = new Date();
   const time = new Date(timestamp);
   const diffMinutes = Math.floor((now - time) / (1000 * 60));
-  
+
   if (diffMinutes < 1) return 'Just now';
   if (diffMinutes < 60) return `${diffMinutes}m ago`;
   if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
   return `${Math.floor(diffMinutes / 1440)}d ago`;
 };
 
+const cardWidth = (width - 64 - 10) / 2;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FAFAFA',
   },
   loadingContainer: {
     flex: 1,
+    backgroundColor: '#FAFAFA',
   },
-  loadingGradient: {
+  loadingContent: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   loadingText: {
-    color: '#fff',
-    fontSize: 16,
-    marginTop: 10,
+    color: '#737373',
+    fontSize: 15,
+    marginTop: 12,
   },
   header: {
-    paddingTop: 50,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
   },
-  headerContent: {
+  headerLeft: {
+    flex: 1,
+  },
+  greeting: {
+    fontSize: 14,
+    color: '#737373',
+  },
+  adminName: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0A0A0A',
+    letterSpacing: -0.3,
+  },
+  logoutBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: '#FAFAFA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 24,
+    paddingTop: 20,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  greeting: {
-    color: '#fff',
-    fontSize: 16,
-    opacity: 0.8,
-  },
-  adminName: {
-    color: '#fff',
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  logoutButton: {
-    padding: 8,
-  },
-  content: {
-    flex: 1,
-  },
-  statsSection: {
-    padding: 20,
-    backgroundColor: '#fff',
-    margin: 10,
-    borderRadius: 12,
-    elevation: 2,
-  },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginBottom: 15,
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#171717',
+    marginBottom: 12,
+  },
+  viewAllLink: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#0F766E',
+    marginBottom: 12,
   },
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    gap: 10,
+    marginBottom: 16,
   },
   statCard: {
-    width: width / 2 - 25,
-    backgroundColor: '#f8f9fa',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 10,
+    width: cardWidth,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#F5F5F5',
   },
-  statNumber: {
+  statIconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  statValue: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginTop: 5,
+    fontWeight: '700',
+    color: '#171717',
+    marginBottom: 2,
   },
   statLabel: {
     fontSize: 12,
-    color: '#7f8c8d',
-    marginTop: 2,
+    color: '#737373',
+    fontWeight: '500',
   },
-  performanceStats: {
+  perfRow: {
     flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#F5F5F5',
     justifyContent: 'space-around',
-    marginTop: 15,
-    paddingTop: 15,
-    borderTopWidth: 1,
-    borderTopColor: '#ecf0f1',
   },
-  performanceStat: {
+  perfItem: {
     alignItems: 'center',
   },
-  performanceLabel: {
-    fontSize: 12,
-    color: '#7f8c8d',
-  },
-  performanceValue: {
+  perfValue: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginTop: 2,
+    fontWeight: '700',
+    color: '#171717',
+    marginBottom: 2,
   },
-  actionsSection: {
-    padding: 20,
-    backgroundColor: '#fff',
-    margin: 10,
-    borderRadius: 12,
-    elevation: 2,
+  perfLabel: {
+    fontSize: 11,
+    color: '#A3A3A3',
+    fontWeight: '500',
   },
-  actionGrid: {
+  actionsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    gap: 10,
   },
   actionCard: {
-    width: width / 2 - 25,
-    height: 120,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  actionGradient: {
     flex: 1,
-    padding: 15,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#F5F5F5',
+  },
+  actionIconWrap: {
+    width: 42,
+    height: 42,
+    borderRadius: 11,
     justifyContent: 'center',
     alignItems: 'center',
+    marginBottom: 12,
   },
   actionTitle: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginTop: 8,
-    textAlign: 'center',
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#171717',
+    marginBottom: 2,
   },
   actionSubtitle: {
-    color: '#fff',
-    fontSize: 11,
-    opacity: 0.9,
-    marginTop: 2,
-    textAlign: 'center',
+    fontSize: 12,
+    color: '#A3A3A3',
   },
-  prioritySection: {
-    padding: 20,
-    backgroundColor: '#fff',
-    margin: 10,
-    borderRadius: 12,
-    elevation: 2,
-  },
-  priorityCard: {
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 10,
-  },
-  priorityHeader: {
+  priorityRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#F5F5F5',
   },
   priorityBadge: {
-    backgroundColor: '#e74c3c',
-    borderRadius: 20,
     width: 40,
     height: 40,
+    borderRadius: 10,
+    backgroundColor: '#FEF2F2',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
   },
   priorityScore: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: 'bold',
+    color: '#DC2626',
+    fontSize: 13,
+    fontWeight: '700',
   },
   priorityInfo: {
     flex: 1,
@@ -497,92 +511,67 @@ const styles = StyleSheet.create({
   priorityTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2c3e50',
+    color: '#171717',
+    textTransform: 'capitalize',
   },
-  priorityLocation: {
+  priorityMeta: {
     fontSize: 12,
-    color: '#7f8c8d',
+    color: '#A3A3A3',
     marginTop: 2,
   },
-  priorityFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  statusBadge: {
-    backgroundColor: '#3498db',
+  statusPill: {
+    backgroundColor: '#F0F9FF',
     paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
+    paddingVertical: 3,
+    borderRadius: 6,
   },
-  statusText: {
-    color: '#fff',
-    fontSize: 10,
-    fontWeight: 'bold',
+  statusPillText: {
+    color: '#0284C7',
+    fontSize: 11,
+    fontWeight: '600',
+    textTransform: 'capitalize',
   },
-  priorityDate: {
-    fontSize: 12,
-    color: '#7f8c8d',
-  },
-  viewAllButton: {
+  hotspotRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 10,
     paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
   },
-  viewAllText: {
-    color: '#3498db',
-    fontSize: 14,
-    fontWeight: '600',
-    marginRight: 5,
-  },
-  hotspotsSection: {
-    padding: 20,
-    backgroundColor: '#fff',
-    margin: 10,
-    borderRadius: 12,
-    elevation: 2,
-  },
-  hotspotCard: {
-    backgroundColor: '#f8f9fa',
+  hotspotIconWrap: {
+    width: 32,
+    height: 32,
     borderRadius: 8,
-    padding: 12,
-    marginBottom: 8,
-  },
-  hotspotHeader: {
-    flexDirection: 'row',
+    backgroundColor: '#FEF2F2',
+    justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 12,
   },
-  hotspotLocation: {
+  hotspotInfo: {
+    flex: 1,
+  },
+  hotspotName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#2c3e50',
-    marginLeft: 8,
+    color: '#171717',
   },
   hotspotCount: {
     fontSize: 12,
-    color: '#7f8c8d',
-    marginTop: 4,
+    color: '#A3A3A3',
+    marginTop: 1,
   },
-  activitySection: {
-    padding: 20,
-    backgroundColor: '#fff',
-    margin: 10,
-    borderRadius: 12,
-    elevation: 2,
-  },
-  activityItem: {
+  activityRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F5F5F5',
   },
-  activityIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#ecf0f1',
+  activityIconWrap: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#F8FAFC',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -592,25 +581,25 @@ const styles = StyleSheet.create({
   },
   activityTitle: {
     fontSize: 14,
-    color: '#2c3e50',
+    color: '#171717',
     fontWeight: '500',
   },
   activityTime: {
     fontSize: 12,
-    color: '#7f8c8d',
-    marginTop: 2,
+    color: '#A3A3A3',
+    marginTop: 1,
   },
-  bottomPadding: {
-    height: 20,
-  },
-  emptyActivityCard: {
+  emptyCard: {
     alignItems: 'center',
-    paddingVertical: 30,
-    opacity: 0.6,
+    paddingVertical: 28,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#F5F5F5',
   },
-  emptyActivityText: {
-    fontSize: 14,
-    color: '#95a5a6',
+  emptyText: {
+    fontSize: 13,
+    color: '#A3A3A3',
     marginTop: 8,
   },
 });

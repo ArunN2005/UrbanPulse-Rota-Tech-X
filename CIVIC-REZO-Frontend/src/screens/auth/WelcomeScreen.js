@@ -4,198 +4,193 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
-  Image,
+  SafeAreaView,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+const { width } = Dimensions.get('window');
 
 const WelcomeScreen = ({ navigation }) => {
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+
       <View style={styles.content}>
-        <View style={styles.logoSection}>
-          <Text style={styles.logo}>🏛️</Text>
-          <Text style={styles.title}>CivicStack</Text>
-          <Text style={styles.subtitle}>
-            Your Voice, Your City, Your Change
+        {/* Brand Section */}
+        <View style={styles.brandSection}>
+          <View style={styles.logoMark}>
+            <Ionicons name="shield-checkmark" size={32} color="#0F766E" />
+          </View>
+          <Text style={styles.brandName}>CivicStack</Text>
+          <Text style={styles.tagline}>
+            Your voice shapes your city.
           </Text>
         </View>
 
-        <View style={styles.buttonContainer}>
+        {/* Role Selection */}
+        <View style={styles.roleSection}>
+          <Text style={styles.sectionLabel}>Continue as</Text>
+
           <TouchableOpacity
-            style={[styles.button, styles.citizenButton]}
+            style={styles.roleCard}
             onPress={() => navigation.navigate('CitizenAuth')}
+            activeOpacity={0.7}
           >
-            <Text style={styles.buttonIcon}>👤</Text>
-            <Text style={styles.buttonText}>Continue as Citizen</Text>
-            <Text style={styles.buttonSubtext}>
-              Report complaints and track progress
-            </Text>
+            <View style={styles.roleIconWrap}>
+              <Ionicons name="person-outline" size={22} color="#0F766E" />
+            </View>
+            <View style={styles.roleTextWrap}>
+              <Text style={styles.roleTitle}>Citizen</Text>
+              <Text style={styles.roleDesc}>Report issues & track progress</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#D4D4D4" />
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.adminButton]}
+            style={styles.roleCard}
             onPress={() => navigation.navigate('AdminAuth')}
+            activeOpacity={0.7}
           >
-            <Text style={styles.buttonIcon}>👨‍💼</Text>
-            <Text style={styles.buttonText}>Continue as Admin</Text>
-            <Text style={styles.buttonSubtext}>
-              Manage complaints and oversee operations
-            </Text>
+            <View style={[styles.roleIconWrap, styles.adminIconWrap]}>
+              <Ionicons name="briefcase-outline" size={22} color="#334155" />
+            </View>
+            <View style={styles.roleTextWrap}>
+              <Text style={styles.roleTitle}>Administrator</Text>
+              <Text style={styles.roleDesc}>Manage complaints & operations</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#D4D4D4" />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.features}>
-          <Text style={styles.featuresTitle}>Key Features</Text>
-          
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>🤖</Text>
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>AI-Powered Analysis</Text>
-              <Text style={styles.featureDesc}>
-                Smart complaint verification and emotion analysis
-              </Text>
-            </View>
+        {/* Highlights */}
+        <View style={styles.highlights}>
+          <View style={styles.highlightRow}>
+            <Ionicons name="sparkles-outline" size={16} color="#737373" />
+            <Text style={styles.highlightText}>AI-powered complaint analysis</Text>
           </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>🗺️</Text>
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Location-Based</Text>
-              <Text style={styles.featureDesc}>
-                Interactive maps and location-specific insights
-              </Text>
-            </View>
+          <View style={styles.highlightRow}>
+            <Ionicons name="location-outline" size={16} color="#737373" />
+            <Text style={styles.highlightText}>Location-aware reporting</Text>
           </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>🌐</Text>
-            <View style={styles.featureText}>
-              <Text style={styles.featureTitle}>Multilingual Support</Text>
-              <Text style={styles.featureDesc}>
-                Support for multiple Indian languages
-              </Text>
-            </View>
+          <View style={styles.highlightRow}>
+            <Ionicons name="language-outline" size={16} color="#737373" />
+            <Text style={styles.highlightText}>Multilingual support</Text>
           </View>
         </View>
       </View>
-    </ScrollView>
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>Built for transparent governance</Text>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FAFAFA',
   },
   content: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 24,
     justifyContent: 'center',
-    minHeight: '100%',
   },
-  logoSection: {
+  brandSection: {
     alignItems: 'center',
-    marginBottom: 50,
-    marginTop: 40,
+    marginBottom: 48,
   },
-  logo: {
-    fontSize: 80,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    paddingHorizontal: 40,
-  },
-  buttonContainer: {
-    marginBottom: 40,
-  },
-  button: {
-    padding: 20,
-    borderRadius: 15,
-    marginBottom: 15,
+  logoMark: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: '#F0FDFA',
+    justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4.65,
-    elevation: 6,
+    marginBottom: 16,
   },
-  citizenButton: {
-    backgroundColor: '#2E7D32',
-  },
-  adminButton: {
-    backgroundColor: '#1976D2',
-  },
-  buttonIcon: {
-    fontSize: 24,
+  brandName: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#0A0A0A',
+    letterSpacing: -0.8,
     marginBottom: 8,
   },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 5,
-  },
-  buttonSubtext: {
-    fontSize: 14,
-    color: '#E8F5E8',
-    textAlign: 'center',
-    paddingHorizontal: 20,
-  },
-  features: {
-    marginTop: 20,
-  },
-  featuresTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
+  tagline: {
+    fontSize: 15,
+    color: '#737373',
     textAlign: 'center',
   },
-  featureItem: {
+  roleSection: {
+    marginBottom: 40,
+  },
+  sectionLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#737373',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 12,
+    marginLeft: 4,
+  },
+  roleCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    padding: 15,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 16,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  roleIconWrap: {
+    width: 44,
+    height: 44,
     borderRadius: 12,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 3.84,
-    elevation: 3,
+    backgroundColor: '#F0FDFA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 14,
   },
-  featureIcon: {
-    fontSize: 24,
-    marginRight: 15,
-    width: 30,
+  adminIconWrap: {
+    backgroundColor: '#F1F5F9',
   },
-  featureText: {
+  roleTextWrap: {
     flex: 1,
   },
-  featureTitle: {
+  roleTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#171717',
     marginBottom: 2,
   },
-  featureDesc: {
+  roleDesc: {
+    fontSize: 13,
+    color: '#737373',
+  },
+  highlights: {
+    paddingHorizontal: 4,
+  },
+  highlightRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  highlightText: {
     fontSize: 14,
-    color: '#666',
+    color: '#737373',
+    marginLeft: 10,
+  },
+  footer: {
+    paddingBottom: 24,
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#D4D4D4',
   },
 });
 

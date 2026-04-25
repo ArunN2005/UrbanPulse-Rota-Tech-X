@@ -12,8 +12,9 @@ import {
   Image,
   TextInput,
   Keyboard,
+  Platform,
 } from 'react-native';
-import MapView, { Marker, Circle } from 'react-native-maps';
+import { MapView, Marker, Circle } from '../../components/MapComponents';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';

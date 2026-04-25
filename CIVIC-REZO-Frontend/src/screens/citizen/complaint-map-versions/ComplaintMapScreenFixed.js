@@ -13,7 +13,7 @@ import {
   Keyboard,
   Dimensions,
 } from 'react-native';
-import MapView, { Marker, Callout, Circle } from 'react-native-maps';
+import { MapView, Marker, Callout, Circle } from '../../../components/MapComponents';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';

@@ -22,7 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { refetchComplaintVotes } from '../../utils/voteUtils';
 import { handleVoting } from '../../utils/enhancedVoteUtils';
-import MapView, { Marker, Circle } from 'react-native-maps';
+import { MapView, Marker, Circle } from '../../components/MapComponents';
 
 const { width, height } = Dimensions.get('window');
 

@@ -5,10 +5,15 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  SafeAreaView,
   Alert,
   ActivityIndicator,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { apiClient, makeApiCall } from '../../../config/supabase';
 
 const CitizenSignupScreen = ({ navigation }) => {
@@ -23,6 +28,7 @@ const CitizenSignupScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [focused, setFocused] = useState(null);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -62,9 +68,9 @@ const CitizenSignupScreen = ({ navigation }) => {
     try {
       const signupData = {
         ...formData,
-        userType: 'citizen', // Ensure this is always citizen
+        userType: 'citizen',
       };
-      delete signupData.confirmPassword; // Remove confirm password
+      delete signupData.confirmPassword;
 
       const response = await makeApiCall(apiClient.auth.signup, {
         method: 'POST',
@@ -73,11 +79,11 @@ const CitizenSignupScreen = ({ navigation }) => {
 
       if (response.success) {
         Alert.alert(
-          'Success',
-          'Your citizen account has been created successfully! You can now login.',
+          'Account Created',
+          'Your citizen account has been created successfully. You can now sign in.',
           [
             {
-              text: 'OK',
+              text: 'Sign In',
               onPress: () => navigation.navigate('CitizenLogin'),
             },
           ]
@@ -90,259 +96,226 @@ const CitizenSignupScreen = ({ navigation }) => {
     }
   };
 
-  return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
-
-        <View style={styles.header}>
-          <Text style={styles.icon}>👤</Text>
-          <Text style={styles.title}>Join as Citizen</Text>
-          <Text style={styles.subtitle}>Create your account to start reporting civic issues</Text>
-        </View>
-
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Full Name *"
-            value={formData.fullName}
-            onChangeText={(value) => handleInputChange('fullName', value)}
-            placeholderTextColor="#999"
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Email Address *"
-            value={formData.email}
-            onChangeText={(value) => handleInputChange('email', value)}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholderTextColor="#999"
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Phone Number *"
-            value={formData.phoneNumber}
-            onChangeText={(value) => handleInputChange('phoneNumber', value)}
-            keyboardType="phone-pad"
-            placeholderTextColor="#999"
-          />
-
-          <TextInput
-            style={styles.input}
-            placeholder="Address (Optional)"
-            value={formData.address}
-            onChangeText={(value) => handleInputChange('address', value)}
-            multiline
-            numberOfLines={2}
-            placeholderTextColor="#999"
-          />
-
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Password *"
-              value={formData.password}
-              onChangeText={(value) => handleInputChange('password', value)}
-              secureTextEntry={!showPassword}
-              placeholderTextColor="#999"
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
-            >
-              <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Confirm Password *"
-              value={formData.confirmPassword}
-              onChangeText={(value) => handleInputChange('confirmPassword', value)}
-              secureTextEntry={!showConfirmPassword}
-              placeholderTextColor="#999"
-            />
-            <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowConfirmPassword(!showConfirmPassword)}
-            >
-              <Text style={styles.eyeIcon}>{showConfirmPassword ? '👁️' : '👁️‍🗨️'}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.infoBox}>
-            <Text style={styles.infoText}>
-              * Required fields
-            </Text>
-            <Text style={styles.infoText}>
-              Your information will be used to verify and track your complaints.
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSignup}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Create Citizen Account</Text>
-            )}
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('CitizenLogin')}
-          >
-            <Text style={styles.linkText}>
-              Already have an account? Login here
-            </Text>
-          </TouchableOpacity>
-        </View>
+  const renderInput = (field, placeholder, icon, options = {}) => (
+    <View style={styles.fieldGroup}>
+      <Text style={styles.label}>{options.label || placeholder}</Text>
+      <View style={[styles.inputWrap, focused === field && styles.inputFocused]}>
+        <Ionicons name={icon} size={18} color={focused === field ? '#0F766E' : '#A3A3A3'} />
+        <TextInput
+          style={[styles.input, options.multiline && styles.multilineInput]}
+          placeholder={placeholder}
+          value={formData[field]}
+          onChangeText={(value) => handleInputChange(field, value)}
+          placeholderTextColor="#A3A3A3"
+          onFocus={() => setFocused(field)}
+          onBlur={() => setFocused(null)}
+          keyboardType={options.keyboardType || 'default'}
+          autoCapitalize={options.autoCapitalize || 'sentences'}
+          multiline={options.multiline}
+          numberOfLines={options.numberOfLines}
+        />
       </View>
-    </ScrollView>
+    </View>
+  );
+
+  const renderPasswordInput = (field, placeholder, label, showState, toggleState) => (
+    <View style={styles.fieldGroup}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={[styles.inputWrap, focused === field && styles.inputFocused]}>
+        <Ionicons name="lock-closed-outline" size={18} color={focused === field ? '#0F766E' : '#A3A3A3'} />
+        <TextInput
+          style={styles.input}
+          placeholder={placeholder}
+          value={formData[field]}
+          onChangeText={(value) => handleInputChange(field, value)}
+          secureTextEntry={!showState}
+          placeholderTextColor="#A3A3A3"
+          onFocus={() => setFocused(field)}
+          onBlur={() => setFocused(null)}
+        />
+        <TouchableOpacity
+          onPress={toggleState}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons
+            name={showState ? 'eye-outline' : 'eye-off-outline'}
+            size={18}
+            color="#A3A3A3"
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoid}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {/* Nav */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Ionicons name="arrow-back" size={22} color="#171717" />
+          </TouchableOpacity>
+
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.subtitle}>Join as a citizen to start reporting civic issues</Text>
+          </View>
+
+          {/* Form */}
+          <View style={styles.form}>
+            {renderInput('fullName', 'Full name', 'person-outline', { label: 'Full Name *' })}
+            {renderInput('email', 'you@example.com', 'mail-outline', { label: 'Email *', keyboardType: 'email-address', autoCapitalize: 'none' })}
+            {renderInput('phoneNumber', '+91 XXXXX XXXXX', 'call-outline', { label: 'Phone Number *', keyboardType: 'phone-pad' })}
+            {renderInput('address', 'Your address', 'location-outline', { label: 'Address (Optional)', multiline: true, numberOfLines: 2 })}
+            {renderPasswordInput('password', 'Min. 6 characters', 'Password *', showPassword, () => setShowPassword(!showPassword))}
+            {renderPasswordInput('confirmPassword', 'Re-enter password', 'Confirm Password *', showConfirmPassword, () => setShowConfirmPassword(!showConfirmPassword))}
+
+            <TouchableOpacity
+              style={[styles.signupButton, loading && styles.signupButtonDisabled]}
+              onPress={handleSignup}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              {loading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.signupButtonText}>Create Account</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Already have an account? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('CitizenLogin')}>
+              <Text style={styles.footerLink}>Sign in</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FAFAFA',
   },
-  content: {
+  keyboardAvoid: {
     flex: 1,
-    padding: 20,
-    paddingTop: 50,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 32,
   },
   backButton: {
-    marginBottom: 20,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#2E7D32',
-    fontWeight: '500',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    marginBottom: 24,
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  icon: {
-    fontSize: 50,
-    marginBottom: 15,
+    marginBottom: 28,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-    marginBottom: 8,
+    fontWeight: '700',
+    color: '#0A0A0A',
+    letterSpacing: -0.5,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    paddingHorizontal: 20,
+    fontSize: 15,
+    color: '#737373',
+    lineHeight: 22,
   },
   form: {
-    marginBottom: 30,
+    marginBottom: 28,
   },
-  input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
-    fontSize: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+  fieldGroup: {
+    marginBottom: 16,
   },
-  passwordContainer: {
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#404040',
+    marginBottom: 6,
+    marginLeft: 2,
+  },
+  inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    borderColor: '#E5E5E5',
+    paddingHorizontal: 14,
+    minHeight: 50,
   },
-  passwordInput: {
+  inputFocused: {
+    borderColor: '#0F766E',
+    backgroundColor: '#FAFFFE',
+  },
+  input: {
     flex: 1,
-    padding: 15,
-    fontSize: 16,
+    fontSize: 15,
+    color: '#171717',
+    marginLeft: 10,
+    paddingVertical: 12,
   },
-  eyeButton: {
-    padding: 15,
+  multilineInput: {
+    textAlignVertical: 'top',
   },
-  eyeIcon: {
-    fontSize: 20,
-  },
-  infoBox: {
-    backgroundColor: '#E8F5E8',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-    borderLeftWidth: 4,
-    borderLeftColor: '#2E7D32',
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#2E7D32',
-    marginBottom: 5,
-  },
-  button: {
-    backgroundColor: '#2E7D32',
-    padding: 16,
+  signupButton: {
+    backgroundColor: '#0F766E',
     borderRadius: 12,
+    paddingVertical: 15,
     alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    justifyContent: 'center',
+    marginTop: 8,
   },
-  buttonDisabled: {
-    backgroundColor: '#ccc',
+  signupButtonDisabled: {
+    backgroundColor: '#A3A3A3',
   },
-  buttonText: {
-    color: '#fff',
+  signupButtonText: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
-  linkButton: {
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
   },
-  linkText: {
-    color: '#2E7D32',
-    fontSize: 16,
-    fontWeight: '500',
+  footerText: {
+    fontSize: 14,
+    color: '#737373',
+  },
+  footerLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0F766E',
   },
 });
 

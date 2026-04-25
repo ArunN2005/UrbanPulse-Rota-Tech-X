@@ -1,187 +1,190 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  SafeAreaView,
+  StatusBar,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const CitizenAuthScreen = ({ navigation }) => {
   return (
-    <ScrollView style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+
       <View style={styles.content}>
+        {/* Nav */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
         >
-          <Text style={styles.backButtonText}>← Back</Text>
+          <Ionicons name="arrow-back" size={22} color="#171717" />
         </TouchableOpacity>
 
+        {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.icon}>👤</Text>
+          <View style={styles.iconWrap}>
+            <Ionicons name="person-outline" size={28} color="#0F766E" />
+          </View>
           <Text style={styles.title}>Citizen Portal</Text>
           <Text style={styles.subtitle}>
-            Join thousands of citizens making their city better
+            Join thousands of citizens improving their city
           </Text>
         </View>
 
-        <View style={styles.buttonContainer}>
+        {/* Actions */}
+        <View style={styles.actions}>
           <TouchableOpacity
-            style={[styles.button, styles.loginButton]}
+            style={styles.primaryButton}
             onPress={() => navigation.navigate('CitizenLogin')}
+            activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Login to Account</Text>
-            <Text style={styles.buttonSubtext}>
-              Access your existing citizen account
-            </Text>
+            <Ionicons name="log-in-outline" size={20} color="#FFFFFF" />
+            <Text style={styles.primaryButtonText}>Sign In</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.button, styles.signupButton]}
+            style={styles.secondaryButton}
             onPress={() => navigation.navigate('CitizenSignup')}
+            activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>Create New Account</Text>
-            <Text style={styles.buttonSubtext}>
-              Register as a new citizen user
-            </Text>
+            <Ionicons name="person-add-outline" size={20} color="#0F766E" />
+            <Text style={styles.secondaryButtonText}>Create Account</Text>
           </TouchableOpacity>
         </View>
 
+        {/* Features */}
         <View style={styles.features}>
-          <Text style={styles.featuresTitle}>What you can do:</Text>
-          
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>📝</Text>
-            <Text style={styles.featureText}>Submit and track complaints</Text>
-          </View>
+          <Text style={styles.featuresLabel}>What you can do</Text>
 
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>📊</Text>
-            <Text style={styles.featureText}>View complaint analytics</Text>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>🗺️</Text>
-            <Text style={styles.featureText}>Explore complaint heatmaps</Text>
-          </View>
-
-          <View style={styles.featureItem}>
-            <Text style={styles.featureIcon}>🤖</Text>
-            <Text style={styles.featureText}>Chat with AI assistant</Text>
-          </View>
+          {[
+            { icon: 'create-outline', text: 'Submit and track complaints' },
+            { icon: 'analytics-outline', text: 'View complaint analytics' },
+            { icon: 'map-outline', text: 'Explore complaint heatmaps' },
+            { icon: 'chatbubble-ellipses-outline', text: 'Chat with AI assistant' },
+          ].map((item, i) => (
+            <View key={i} style={styles.featureRow}>
+              <Ionicons name={item.icon} size={18} color="#0F766E" />
+              <Text style={styles.featureText}>{item.text}</Text>
+            </View>
+          ))}
         </View>
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FAFAFA',
   },
   content: {
     flex: 1,
-    padding: 20,
-    paddingTop: 50,
+    paddingHorizontal: 24,
+    paddingTop: 16,
   },
   backButton: {
-    marginBottom: 20,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#2E7D32',
-    fontWeight: '500',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    marginBottom: 32,
   },
   header: {
     alignItems: 'center',
-    marginBottom: 40,
+    marginBottom: 36,
   },
-  icon: {
-    fontSize: 60,
-    marginBottom: 15,
+  iconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    backgroundColor: '#F0FDFA',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#2E7D32',
-    marginBottom: 8,
+    fontSize: 26,
+    fontWeight: '700',
+    color: '#0A0A0A',
+    letterSpacing: -0.5,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 15,
+    color: '#737373',
     textAlign: 'center',
+    lineHeight: 22,
     paddingHorizontal: 20,
   },
-  buttonContainer: {
-    marginBottom: 40,
+  actions: {
+    marginBottom: 36,
+    gap: 10,
   },
-  button: {
-    padding: 20,
+  primaryButton: {
+    backgroundColor: '#0F766E',
     borderRadius: 12,
-    marginBottom: 15,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  loginButton: {
-    backgroundColor: '#2E7D32',
-  },
-  signupButton: {
-    backgroundColor: '#4CAF50',
-  },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 5,
-  },
-  buttonSubtext: {
-    fontSize: 14,
-    color: '#E8F5E8',
-    textAlign: 'center',
-  },
-  features: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 3.84,
-    elevation: 3,
-  },
-  featuresTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  featureItem: {
+    paddingVertical: 15,
+    paddingHorizontal: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 8,
+    justifyContent: 'center',
   },
-  featureIcon: {
-    fontSize: 20,
-    marginRight: 12,
-    width: 25,
+  primaryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginLeft: 8,
+  },
+  secondaryButton: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingVertical: 15,
+    paddingHorizontal: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  secondaryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0F766E',
+    marginLeft: 8,
+  },
+  features: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  featuresLabel: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#737373',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 14,
+  },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 9,
   },
   featureText: {
-    fontSize: 16,
-    color: '#555',
-    flex: 1,
+    fontSize: 15,
+    color: '#404040',
+    marginLeft: 12,
   },
 });
 

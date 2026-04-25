@@ -14,17 +14,17 @@ const FloatingChatbotButton = ({ onPress, style }) => {
   const [showTooltip, setShowTooltip] = useState(true);
 
   useEffect(() => {
-    // Simple pulse animation
+    // Subtle breathe animation
     const pulseAnimation = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.15,
-          duration: 2000,
+          toValue: 1.08,
+          duration: 2500,
           useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
-          duration: 2000,
+          duration: 2500,
           useNativeDriver: true,
         }),
       ])
@@ -32,10 +32,10 @@ const FloatingChatbotButton = ({ onPress, style }) => {
 
     pulseAnimation.start();
 
-    // Hide tooltip after 5 seconds
+    // Hide tooltip after 4 seconds
     const tooltipTimer = setTimeout(() => {
       setShowTooltip(false);
-    }, 5000);
+    }, 4000);
 
     return () => {
       pulseAnimation.stop();
@@ -51,39 +51,34 @@ const FloatingChatbotButton = ({ onPress, style }) => {
   return (
     <View style={[styles.container, style]} pointerEvents="box-none">
       {/* Pulse Ring */}
-      <Animated.View 
+      <Animated.View
         style={[
           styles.pulseRing,
           {
             transform: [{ scale: pulseAnim }],
           }
-        ]} 
+        ]}
       />
-      
+
       {/* Main Button */}
       <TouchableOpacity
         style={styles.button}
         onPress={handlePress}
-        activeOpacity={0.7}
+        activeOpacity={0.85}
         accessibilityLabel="Open CivicStack Assistant"
         accessibilityHint="Get help with app features and civic issues"
       >
-        <MaterialCommunityIcons 
-          name="robot-happy" 
-          size={32} 
-          color="#fff" 
+        <MaterialCommunityIcons
+          name="robot-happy-outline"
+          size={26}
+          color="#fff"
         />
-        
-        {/* Help Badge */}
-        <View style={styles.helpBadge}>
-          <MaterialCommunityIcons name="help" size={12} color="#fff" />
-        </View>
       </TouchableOpacity>
-      
+
       {/* Tooltip */}
       {showTooltip && (
         <View style={styles.tooltip}>
-          <Text style={styles.tooltipText}>Need help? Ask me!</Text>
+          <Text style={styles.tooltipText}>Need help?</Text>
           <View style={styles.tooltipArrow} />
         </View>
       )}
@@ -102,84 +97,58 @@ const styles = StyleSheet.create({
   },
   pulseRing: {
     position: 'absolute',
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(52, 152, 219, 0.15)',
-    borderWidth: 2,
-    borderColor: 'rgba(52, 152, 219, 0.3)',
-    top: -10,
-    left: -10,
+    width: 68,
+    height: 68,
+    borderRadius: 18,
+    backgroundColor: 'rgba(15, 118, 110, 0.08)',
+    top: -6,
+    left: -6,
   },
   button: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#3498db',
+    width: 54,
+    height: 54,
+    borderRadius: 16,
+    backgroundColor: '#0F766E',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 12,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 6,
-    },
-    shadowOpacity: 0.4,
+    elevation: 6,
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
     shadowRadius: 8,
-    borderWidth: 3,
-    borderColor: '#fff',
-  },
-  helpBadge: {
-    position: 'absolute',
-    top: -3,
-    right: -3,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: '#e74c3c',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
-    elevation: 15,
   },
   tooltip: {
     position: 'absolute',
-    bottom: 75,
-    right: -10,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-    minWidth: 120,
+    bottom: 68,
+    right: 0,
+    backgroundColor: '#171717',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
     alignItems: 'center',
-    elevation: 10,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
   tooltipText: {
     color: '#fff',
-    fontSize: 13,
-    fontWeight: '600',
-    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: '500',
   },
   tooltipArrow: {
     position: 'absolute',
-    bottom: -6,
-    right: 25,
+    bottom: -5,
+    right: 18,
     width: 0,
     height: 0,
-    borderLeftWidth: 6,
-    borderRightWidth: 6,
-    borderTopWidth: 6,
+    borderLeftWidth: 5,
+    borderRightWidth: 5,
+    borderTopWidth: 5,
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
-    borderTopColor: 'rgba(0, 0, 0, 0.85)',
+    borderTopColor: '#171717',
   },
 });
 

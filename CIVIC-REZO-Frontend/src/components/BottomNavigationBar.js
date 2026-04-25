@@ -17,12 +17,12 @@ const { width } = Dimensions.get('window');
 const BottomNavigationBar = ({ state, descriptors, navigation }) => {
   const insets = useSafeAreaInsets();
   const focusedOptions = descriptors[state.routes[state.index].key].options;
-  
+
   // Animations
   const tabPositions = React.useRef(
     state.routes.map((_, i) => new Animated.Value(i === state.index ? 1 : 0))
   ).current;
-  
+
   useEffect(() => {
     // Animate tab transitions
     state.routes.forEach((_, i) => {
@@ -42,33 +42,33 @@ const BottomNavigationBar = ({ state, descriptors, navigation }) => {
   const getIconName = (routeName, isFocused) => {
     switch (routeName) {
       case 'Home':
-        return { 
+        return {
           name: isFocused ? 'home' : 'home-outline',
           type: 'ionicon'
         };
       case 'ComplaintMap':
-        return { 
+        return {
           name: isFocused ? 'map' : 'map-outline',
           type: 'ionicon'
         };
       case 'SubmitComplaint':
-        return { 
+        return {
           name: 'add-circle',
           type: 'ionicon',
-          size: 52
+          size: 48
         };
       case 'Notifications':
-        return { 
+        return {
           name: isFocused ? 'notifications' : 'notifications-outline',
           type: 'ionicon'
         };
       case 'Profile':
-        return { 
+        return {
           name: isFocused ? 'person' : 'person-outline',
           type: 'ionicon'
         };
       default:
-        return { 
+        return {
           name: 'help-circle',
           type: 'ionicon'
         };
@@ -76,9 +76,9 @@ const BottomNavigationBar = ({ state, descriptors, navigation }) => {
   };
 
   const renderIcon = (icon, isFocused, index) => {
-    const { type, name, size = 24 } = icon;
-    const color = isFocused ? '#3498db' : '#777';
-    
+    const { type, name, size = 22 } = icon;
+    const color = isFocused ? '#0F766E' : '#A3A3A3';
+
     switch (type) {
       case 'ionicon':
         return <Ionicons name={name} size={size} color={color} />;
@@ -97,9 +97,9 @@ const BottomNavigationBar = ({ state, descriptors, navigation }) => {
     const centerRoute = state.routes[centerIndex];
     const { options } = descriptors[centerRoute.key];
     const isFocused = state.index === centerIndex;
-    
+
     const icon = getIconName(centerRoute.name, isFocused);
-    
+
     return (
       <TouchableOpacity
         key={centerRoute.key}
@@ -129,7 +129,7 @@ const BottomNavigationBar = ({ state, descriptors, navigation }) => {
 
   return (
     <View style={[
-      styles.container, 
+      styles.container,
       { paddingBottom: insets.bottom > 0 ? insets.bottom : 8 }
     ]}>
       {Platform.OS === 'ios' && (
@@ -139,30 +139,30 @@ const BottomNavigationBar = ({ state, descriptors, navigation }) => {
           tint="light"
         />
       )}
-      
+
       <View style={styles.background} />
-      
+
       <View style={styles.tabsContainer}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
-          
+
           // Center button special case
           if (index === Math.floor(state.routes.length / 2)) {
             return renderCenterButton();
           }
-          
+
           const icon = getIconName(route.name, isFocused);
-          
+
           // Animations
           const translateY = tabPositions[index].interpolate({
             inputRange: [0, 1],
-            outputRange: [0, -4],
+            outputRange: [0, -3],
           });
-          
+
           const scale = tabPositions[index].interpolate({
             inputRange: [0, 1],
-            outputRange: [0.9, 1.1],
+            outputRange: [0.95, 1.05],
           });
 
           return (
@@ -185,7 +185,7 @@ const BottomNavigationBar = ({ state, descriptors, navigation }) => {
               }}
               style={styles.tabButton}
             >
-              <Animated.View 
+              <Animated.View
                 style={[
                   styles.tabContent,
                   {
@@ -197,13 +197,13 @@ const BottomNavigationBar = ({ state, descriptors, navigation }) => {
                 ]}
               >
                 {renderIcon(icon, isFocused, index)}
-                
+
                 {isFocused && (
                   <Text style={styles.tabLabel}>
                     {route.name.replace(/([A-Z])/g, ' $1').trim()}
                   </Text>
                 )}
-                
+
                 {isFocused && <View style={styles.activeIndicator} />}
               </Animated.View>
             </TouchableOpacity>
@@ -220,24 +220,24 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: Platform.OS === 'android' ? '#fff' : 'transparent',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: Platform.OS === 'android' ? '#FFFFFF' : 'transparent',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
     overflow: 'hidden',
-    elevation: 10,
+    elevation: 8,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
     zIndex: 1000,
   },
   background: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: Platform.OS === 'android' ? '#fff' : 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: Platform.OS === 'android' ? '#FFFFFF' : 'rgba(255, 255, 255, 0.92)',
   },
   tabsContainer: {
     flexDirection: 'row',
-    height: 60,
+    height: 56,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'space-around',
@@ -246,25 +246,25 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 60,
+    height: 56,
   },
   tabContent: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   tabLabel: {
-    fontSize: 11,
-    marginTop: 3,
-    color: '#3498db',
-    fontWeight: '500',
+    fontSize: 10,
+    marginTop: 2,
+    color: '#0F766E',
+    fontWeight: '600',
   },
   activeIndicator: {
     position: 'absolute',
-    bottom: -12,
+    bottom: -10,
     width: 4,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#3498db',
+    backgroundColor: '#0F766E',
   },
   centerButtonContainer: {
     flex: 1.2,
@@ -273,17 +273,17 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   centerButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#3498db',
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: '#0F766E',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -30,
-    shadowColor: '#3498db',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
+    marginTop: -24,
+    shadowColor: '#0F766E',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
     elevation: 6,
   },
 });

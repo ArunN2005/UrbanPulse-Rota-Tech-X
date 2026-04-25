@@ -5,10 +5,15 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  SafeAreaView,
   Alert,
   ActivityIndicator,
+  StatusBar,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { apiClient, makeApiCall } from '../../../config/supabase';
 
@@ -19,6 +24,7 @@ const AdminLoginScreen = ({ navigation }) => {
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [focused, setFocused] = useState(null);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
@@ -63,252 +69,275 @@ const AdminLoginScreen = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.content}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoid}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <Text style={styles.backButtonText}>← Back</Text>
-        </TouchableOpacity>
+          {/* Nav */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          >
+            <Ionicons name="arrow-back" size={22} color="#171717" />
+          </TouchableOpacity>
 
-        <View style={styles.header}>
-          <Text style={styles.icon}>👨‍💼</Text>
-          <Text style={styles.title}>Admin Login</Text>
-          <Text style={styles.subtitle}>Secure administrator access</Text>
-        </View>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Admin Sign In</Text>
+            <Text style={styles.subtitle}>Secure administrator access</Text>
+          </View>
 
-        <View style={styles.securityNotice}>
-          <Text style={styles.securityIcon}>🔒</Text>
-          <Text style={styles.securityText}>
-            Admin portal uses enhanced security measures. Your login activity is monitored.
-          </Text>
-        </View>
+          {/* Security Notice */}
+          <View style={styles.notice}>
+            <Ionicons name="shield-checkmark-outline" size={18} color="#0284C7" />
+            <Text style={styles.noticeText}>
+              Admin portal uses enhanced security. Login activity is monitored.
+            </Text>
+          </View>
 
-        <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="Admin Email Address"
-            value={formData.email}
-            onChangeText={(value) => handleInputChange('email', value)}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholderTextColor="#999"
-          />
+          {/* Form */}
+          <View style={styles.form}>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Admin Email</Text>
+              <View style={[styles.inputWrap, focused === 'email' && styles.inputFocused]}>
+                <Ionicons name="mail-outline" size={18} color={focused === 'email' ? '#334155' : '#A3A3A3'} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="admin@example.gov"
+                  value={formData.email}
+                  onChangeText={(value) => handleInputChange('email', value)}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  placeholderTextColor="#A3A3A3"
+                  onFocus={() => setFocused('email')}
+                  onBlur={() => setFocused(null)}
+                />
+              </View>
+            </View>
 
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Admin Password"
-              value={formData.password}
-              onChangeText={(value) => handleInputChange('password', value)}
-              secureTextEntry={!showPassword}
-              placeholderTextColor="#999"
-            />
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Password</Text>
+              <View style={[styles.inputWrap, focused === 'password' && styles.inputFocused]}>
+                <Ionicons name="lock-closed-outline" size={18} color={focused === 'password' ? '#334155' : '#A3A3A3'} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter password"
+                  value={formData.password}
+                  onChangeText={(value) => handleInputChange('password', value)}
+                  secureTextEntry={!showPassword}
+                  placeholderTextColor="#A3A3A3"
+                  onFocus={() => setFocused('password')}
+                  onBlur={() => setFocused(null)}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons
+                    name={showPassword ? 'eye-outline' : 'eye-off-outline'}
+                    size={18}
+                    color="#A3A3A3"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <TouchableOpacity
-              style={styles.eyeButton}
-              onPress={() => setShowPassword(!showPassword)}
+              style={styles.forgotWrap}
+              onPress={() => Alert.alert('Admin Support', 'For password reset, please contact your system administrator.')}
             >
-              <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+              <Text style={styles.forgotText}>Forgot password?</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.loginButton, loading && styles.loginButtonDisabled]}
+              onPress={handleLogin}
+              disabled={loading}
+              activeOpacity={0.8}
+            >
+              {loading ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.loginButtonText}>Secure Sign In</Text>
+              )}
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Secure Login</Text>
-            )}
-          </TouchableOpacity>
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Need admin access? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('AdminSignup')}>
+              <Text style={styles.footerLink}>Register here</Text>
+            </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => navigation.navigate('AdminSignup')}
-          >
-            <Text style={styles.linkText}>
-              Need admin access? Register here
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.linkButton}
-            onPress={() => Alert.alert('Admin Support', 'For password reset, please contact your system administrator.')}
-          >
-            <Text style={styles.linkText}>Forgot Password?</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Citizen user? 
-          </Text>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('Welcome')}
-          >
-            <Text style={styles.footerLink}> Switch to Citizen Portal</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </ScrollView>
+          <View style={styles.switchPortal}>
+            <TouchableOpacity
+              style={styles.switchButton}
+              onPress={() => navigation.navigate('Welcome')}
+            >
+              <Ionicons name="swap-horizontal-outline" size={16} color="#737373" />
+              <Text style={styles.switchText}>Switch to Citizen Portal</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#FAFAFA',
   },
-  content: {
+  keyboardAvoid: {
     flex: 1,
-    padding: 20,
-    paddingTop: 50,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 32,
   },
   backButton: {
-    marginBottom: 20,
-  },
-  backButtonText: {
-    fontSize: 16,
-    color: '#1976D2',
-    fontWeight: '500',
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    marginBottom: 32,
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  icon: {
-    fontSize: 50,
-    marginBottom: 15,
+    marginBottom: 20,
   },
   title: {
     fontSize: 28,
-    fontWeight: 'bold',
-    color: '#1976D2',
-    marginBottom: 8,
+    fontWeight: '700',
+    color: '#0A0A0A',
+    letterSpacing: -0.5,
+    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
+    fontSize: 15,
+    color: '#737373',
   },
-  securityNotice: {
-    backgroundColor: '#E3F2FD',
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 30,
+  notice: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderLeftWidth: 4,
-    borderLeftColor: '#1976D2',
+    backgroundColor: '#F0F9FF',
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 28,
+    borderWidth: 1,
+    borderColor: '#E0F2FE',
   },
-  securityIcon: {
-    fontSize: 18,
-    marginRight: 10,
-  },
-  securityText: {
-    fontSize: 14,
-    color: '#1976D2',
+  noticeText: {
+    fontSize: 13,
+    color: '#0369A1',
     flex: 1,
+    marginLeft: 10,
+    lineHeight: 18,
   },
   form: {
-    marginBottom: 30,
+    marginBottom: 32,
   },
-  input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 15,
-    fontSize: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+  fieldGroup: {
+    marginBottom: 18,
   },
-  passwordContainer: {
+  label: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#404040',
+    marginBottom: 6,
+    marginLeft: 2,
+  },
+  inputWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 12,
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 2,
+    borderColor: '#E5E5E5',
+    paddingHorizontal: 14,
+    height: 50,
   },
-  passwordInput: {
+  inputFocused: {
+    borderColor: '#334155',
+    backgroundColor: '#F8FAFC',
+  },
+  input: {
     flex: 1,
-    padding: 15,
-    fontSize: 16,
+    fontSize: 15,
+    color: '#171717',
+    marginLeft: 10,
+    paddingVertical: 0,
   },
-  eyeButton: {
-    padding: 15,
+  forgotWrap: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
   },
-  eyeIcon: {
-    fontSize: 20,
-  },
-  button: {
-    backgroundColor: '#1976D2',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  buttonDisabled: {
-    backgroundColor: '#ccc',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  linkButton: {
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  linkText: {
-    color: '#1976D2',
-    fontSize: 16,
+  forgotText: {
+    fontSize: 13,
+    color: '#334155',
     fontWeight: '500',
+  },
+  loginButton: {
+    backgroundColor: '#334155',
+    borderRadius: 12,
+    paddingVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loginButtonDisabled: {
+    backgroundColor: '#A3A3A3',
+  },
+  loginButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#FFFFFF',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
+    marginBottom: 16,
   },
   footerText: {
-    color: '#666',
     fontSize: 14,
+    color: '#737373',
   },
   footerLink: {
-    color: '#2E7D32',
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: '#334155',
+  },
+  switchPortal: {
+    alignItems: 'center',
+  },
+  switchButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    backgroundColor: '#F5F5F5',
+  },
+  switchText: {
+    fontSize: 13,
+    color: '#737373',
+    marginLeft: 6,
   },
 });
 
