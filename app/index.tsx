@@ -1,47 +1,84 @@
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-native';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { CivicNoirTheme } from '../constants/theme';
+import { pressFeedback } from '../components/civic/haptics';
 
-const { width } = Dimensions.get('window');
+type PortalCardProps = {
+  icon: keyof typeof MaterialIcons.glyphMap;
+  title: string;
+  description: string;
+  onPress: () => void;
+  delay: number;
+};
+
+function PortalCard({ icon, title, description, onPress, delay }: PortalCardProps) {
+  return (
+    <Animated.View entering={FadeInDown.duration(CivicNoirTheme.motion.slow).delay(delay)} style={styles.cardWrap}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        accessibilityHint={description}
+        onPress={() => {
+          pressFeedback();
+          onPress();
+        }}
+        style={({ pressed }) => [styles.actionCard, pressed && styles.actionCardPressed]}
+      >
+        <MaterialIcons name={icon} size={40} color={CivicNoirTheme.colors.primary} />
+        <View style={styles.cardTextBlock}>
+          <Text style={styles.actionText}>{title}</Text>
+          <Text style={styles.actionDesc}>{description}</Text>
+        </View>
+        <View style={styles.cardFooter}>
+          <Text style={styles.cardFooterText}>ENTER</Text>
+          <MaterialIcons name="arrow-forward" size={16} color={CivicNoirTheme.colors.primary} />
+        </View>
+      </Pressable>
+    </Animated.View>
+  );
+}
 
 export default function WelcomeScreen() {
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const isWide = width > 600;
+
   return (
     <View style={styles.container}>
-      <View style={styles.content}>
+      <View style={[styles.content, { paddingTop: insets.top }]}>
         {/* Branding Identity Anchor */}
-        <View style={styles.brandContainer}>
+        <Animated.View entering={FadeIn.duration(CivicNoirTheme.motion.slow)} style={styles.brandContainer}>
           <View style={styles.logoBox}>
             <MaterialIcons name="architecture" size={64} color={CivicNoirTheme.colors.primary} />
           </View>
           <Text style={styles.title}>CIVIC-REZO</Text>
           <View style={styles.separator} />
           <Text style={styles.subtitle}>Institutional Portal</Text>
-        </View>
+        </Animated.View>
 
         {/* Entry Actions */}
-        <View style={styles.actionsContainer}>
-          <TouchableOpacity 
-            style={styles.actionCard} 
-            activeOpacity={0.8}
+        <View style={[styles.actionsContainer, { flexDirection: isWide ? 'row' : 'column' }]}>
+          <PortalCard
+            icon="vpn-key"
+            title="CITIZEN PORTAL"
+            description="Report issues, follow initiatives, and engage with your district."
             onPress={() => router.push('/citizen-auth')}
-          >
-            <MaterialIcons name="vpn-key" size={40} color={CivicNoirTheme.colors.primary} style={styles.actionIcon} />
-            <Text style={styles.actionText}>CITIZEN PORTAL</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.actionCard} 
-            activeOpacity={0.8}
+            delay={200}
+          />
+          <PortalCard
+            icon="admin-panel-settings"
+            title="ADMIN ACCESS"
+            description="Operations, dispatch, and priority queue management."
             onPress={() => router.push('/admin-auth')}
-          >
-            <MaterialIcons name="admin-panel-settings" size={40} color={CivicNoirTheme.colors.primary} style={styles.actionIcon} />
-            <Text style={styles.actionText}>ADMIN ACCESS</Text>
-          </TouchableOpacity>
+            delay={320}
+          />
         </View>
       </View>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 24 }]}>
         <Text style={styles.footerText}>SYSTEM ARCHITECTURE VALIDATED</Text>
       </View>
     </View>
@@ -58,7 +95,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 24,
-    zIndex: 10,
   },
   brandContainer: {
     alignItems: 'center',
@@ -75,9 +111,8 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   title: {
-    fontFamily: CivicNoirTheme.typography.displayXl.fontFamily,
-    fontSize: CivicNoirTheme.typography.displayXl.fontSize >= 40 ? 40 : CivicNoirTheme.typography.displayXl.fontSize,
-    fontWeight: '700',
+    ...CivicNoirTheme.typography.displayXl,
+    fontSize: 40,
     color: CivicNoirTheme.colors.primary,
     textTransform: 'uppercase',
   },
@@ -88,47 +123,66 @@ const styles = StyleSheet.create({
     marginVertical: 24,
   },
   subtitle: {
-    fontFamily: CivicNoirTheme.typography.headlineMd.fontFamily,
-    fontSize: CivicNoirTheme.typography.headlineMd.fontSize,
-    fontWeight: '500',
+    ...CivicNoirTheme.typography.headlineMd,
     color: CivicNoirTheme.colors.secondary,
   },
   actionsContainer: {
-    flexDirection: width > 600 ? 'row' : 'column',
     width: '100%',
     maxWidth: 800,
     gap: CivicNoirTheme.spacing.gutter,
   },
-  actionCard: {
+  cardWrap: {
     flex: 1,
-    padding: 48,
+  },
+  actionCard: {
+    padding: 32,
     borderWidth: 1,
     borderColor: CivicNoirTheme.colors.primary,
     backgroundColor: CivicNoirTheme.colors.surfaceContainerLowest,
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 20,
   },
-  actionIcon: {
-    marginBottom: 24,
+  actionCardPressed: {
+    backgroundColor: CivicNoirTheme.colors.pressedWash,
+    transform: [{ scale: 0.99 }],
+  },
+  cardTextBlock: {
+    alignItems: 'center',
+    gap: 8,
   },
   actionText: {
-    fontFamily: CivicNoirTheme.typography.labelSm.fontFamily,
-    fontSize: CivicNoirTheme.typography.labelSm.fontSize,
-    fontWeight: '600',
-    letterSpacing: CivicNoirTheme.typography.labelSm.letterSpacing,
+    ...CivicNoirTheme.typography.labelSm,
     color: CivicNoirTheme.colors.primary,
     textTransform: 'uppercase',
   },
+  actionDesc: {
+    fontFamily: CivicNoirTheme.typography.bodyMd.fontFamily,
+    fontSize: 14,
+    lineHeight: 21,
+    color: CivicNoirTheme.colors.secondary,
+    textAlign: 'center',
+    maxWidth: 260,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    borderTopWidth: 1,
+    borderTopColor: CivicNoirTheme.colors.outlineSoft,
+    paddingTop: 16,
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+  },
+  cardFooterText: {
+    ...CivicNoirTheme.typography.labelSm,
+    color: CivicNoirTheme.colors.primary,
+  },
   footer: {
-    position: 'absolute',
-    bottom: 32,
     width: '100%',
     alignItems: 'center',
   },
   footerText: {
-    fontFamily: CivicNoirTheme.typography.labelSm.fontFamily,
-    fontSize: CivicNoirTheme.typography.labelSm.fontSize,
+    ...CivicNoirTheme.typography.labelSm,
     color: CivicNoirTheme.colors.outline,
-    letterSpacing: CivicNoirTheme.typography.labelSm.letterSpacing,
-  }
+  },
 });

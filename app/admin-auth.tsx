@@ -1,26 +1,67 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Dimensions, ImageBackground, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import {
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { CivicNoirTheme } from '../constants/theme';
-
-const { width } = Dimensions.get('window');
-const isDesktop = width >= 1024;
+import { NoirButton } from '../components/civic/NoirButton';
+import { NoirInput } from '../components/civic/NoirInput';
+import { pressFeedback, successFeedback } from '../components/civic/haptics';
 
 export default function AdminAuthScreen() {
-  const [showPassword, setShowPassword] = useState(false);
+  const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
+  const isDesktop = width >= 1024;
+
+  const [operatorId, setOperatorId] = useState('');
+  const [securityKey, setSecurityKey] = useState('');
+  const [mfaToken, setMfaToken] = useState('');
+  const [errors, setErrors] = useState<{ operatorId?: string; securityKey?: string; mfaToken?: string }>({});
+  const [submitting, setSubmitting] = useState(false);
+
+  const validate = () => {
+    const next: typeof errors = {};
+    if (!operatorId.trim()) next.operatorId = 'Operator ID is required.';
+    if (securityKey.length < 8) next.securityKey = 'Security key must be at least 8 characters.';
+    if (mfaToken && !/^\d{6}$/.test(mfaToken.replace(/\s/g, ''))) {
+      next.mfaToken = 'MFA token must be 6 digits.';
+    }
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const submit = () => {
+    if (!validate()) return;
+    setSubmitting(true);
+    // Simulated auth handshake until the backend is wired up.
+    setTimeout(() => {
+      setSubmitting(false);
+      successFeedback();
+      router.replace('/admin-dashboard');
+    }, 900);
+  };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { padding: isDesktop ? 64 : 0 }]}>
       <View style={styles.wrapper}>
-        
         {/* Architectural Branding Panel (Left on Desktop) */}
         {isDesktop && (
           <View style={styles.leftPanel}>
-            <ImageBackground 
+            <ImageBackground
               source={{ uri: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB6jEyFaXECpYywiqQ9saq-3YjQVlw9K_apSRhD6B83HcKW0sE3TfV72-l3tKMCs91XcQ_3YSC70-ON1jbHbC1whcXI5ewjuKRaJnBzSe0Xx5mlHwHRfymyoL5_HdB5BdHCo33RpL9N1NZzLUIaVbUTPE-GwEoTzwBOL7KoqOlCClHUJWMXdPL__8s3lGj2hO_saWMhDjYDfLvDfvQijgqmjwbOvJ5-Qwa6me0aAnpqDS_1YAzIuLnZVn7aodOxqLsyx_AeRASm3NfR' }}
               style={styles.backgroundImage}
-              imageStyle={{ opacity: 0.4, tintColor: 'gray' }}
+              imageStyle={styles.backgroundImageInner}
             >
               <View style={styles.leftContent}>
                 <Text style={styles.brandTitle}>CIVIC{'\n'}REZO</Text>
@@ -38,13 +79,36 @@ export default function AdminAuthScreen() {
         )}
 
         {/* Auth Functional Canvas (Right) */}
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.rightPanel}
         >
-          <ScrollView contentContainerStyle={styles.scrollContent}>
-            <View style={[styles.authCard, isDesktop && styles.authCardDesktop]}>
-              
+          <ScrollView
+            contentContainerStyle={[
+              styles.scrollContent,
+              { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 24 },
+            ]}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Pressable
+              onPress={() => {
+                pressFeedback();
+                if (router.canGoBack()) router.back();
+                else router.replace('/');
+              }}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Back to portal selection"
+              style={({ pressed }) => [styles.backLink, pressed && styles.backLinkPressed]}
+            >
+              <MaterialIcons name="arrow-back" size={18} color={CivicNoirTheme.colors.secondary} />
+              <Text style={styles.backLinkText}>PORTAL SELECTION</Text>
+            </Pressable>
+
+            <Animated.View
+              entering={FadeInDown.duration(CivicNoirTheme.motion.base)}
+              style={[styles.authCard, isDesktop && styles.authCardDesktop]}
+            >
               {!isDesktop && (
                 <View style={styles.mobileHeader}>
                   <Text style={styles.mobileTitle}>CIVIC-REZO</Text>
@@ -53,60 +117,63 @@ export default function AdminAuthScreen() {
               )}
 
               <View style={styles.headerBox}>
-                  <Text style={styles.headerBoxTitle}>ADMINISTRATOR AUTH</Text>
+                <MaterialIcons name="shield" size={18} color={CivicNoirTheme.colors.primary} />
+                <Text style={styles.headerBoxTitle}>ADMINISTRATOR AUTH</Text>
               </View>
 
               {/* Auth Form */}
               <View style={styles.formContainer}>
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>OPERATOR ID</Text>
-                  <View style={styles.inputWrapper}>
-                    <TextInput 
-                      style={styles.input}
-                      placeholder="Enter operator credential"
-                      placeholderTextColor={CivicNoirTheme.colors.outline}
-                    />
-                    <MaterialIcons name="security" size={24} color={CivicNoirTheme.colors.outline} style={styles.inputIcon} />
-                  </View>
-                </View>
+                <NoirInput
+                  label="OPERATOR ID"
+                  value={operatorId}
+                  onChangeText={(t) => {
+                    setOperatorId(t);
+                    if (errors.operatorId) setErrors((e) => ({ ...e, operatorId: undefined }));
+                  }}
+                  placeholder="Enter operator credential"
+                  icon="security"
+                  error={errors.operatorId}
+                />
 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>SECURITY KEY</Text>
-                  <View style={styles.inputWrapper}>
-                    <TextInput 
-                      style={styles.input}
-                      placeholder="••••••••••••"
-                      placeholderTextColor={CivicNoirTheme.colors.outline}
-                      secureTextEntry={!showPassword}
-                    />
-                    <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.inputIcon}>
-                      <MaterialIcons name={showPassword ? "visibility" : "visibility-off"} size={24} color={CivicNoirTheme.colors.outline} />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-                
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>MFA TOKEN (OPTIONAL)</Text>
-                  <View style={styles.inputWrapper}>
-                    <TextInput 
-                      style={styles.input}
-                      placeholder="000 000"
-                      placeholderTextColor={CivicNoirTheme.colors.outline}
-                    />
-                    <MaterialIcons name="dialpad" size={24} color={CivicNoirTheme.colors.outline} style={styles.inputIcon} />
-                  </View>
-                </View>
+                <NoirInput
+                  label="SECURITY KEY"
+                  value={securityKey}
+                  onChangeText={(t) => {
+                    setSecurityKey(t);
+                    if (errors.securityKey) setErrors((e) => ({ ...e, securityKey: undefined }));
+                  }}
+                  placeholder="Minimum 8 characters"
+                  secure
+                  error={errors.securityKey}
+                />
 
-                <TouchableOpacity
+                <NoirInput
+                  label="MFA TOKEN (OPTIONAL)"
+                  value={mfaToken}
+                  onChangeText={(t) => {
+                    setMfaToken(t);
+                    if (errors.mfaToken) setErrors((e) => ({ ...e, mfaToken: undefined }));
+                  }}
+                  placeholder="000 000"
+                  icon="dialpad"
+                  keyboardType="number-pad"
+                  error={errors.mfaToken}
+                />
+
+                <NoirButton
+                  label="INITIALIZE SESSION"
+                  icon="arrow-forward"
+                  onPress={submit}
+                  loading={submitting}
                   style={styles.submitButton}
-                  activeOpacity={0.9}
-                  onPress={() => router.replace('/citizen-dashboard')}
-                >
-                  <Text style={styles.submitText}>INITIALIZE SESSION</Text>
-                  <MaterialIcons name="arrow-forward" size={24} color={CivicNoirTheme.colors.onPrimary} />
-                </TouchableOpacity>
+                />
               </View>
-            </View>
+
+              <View style={styles.securityFooter}>
+                <MaterialIcons name="lock" size={16} color={CivicNoirTheme.colors.outline} />
+                <Text style={styles.securityText}>All access attempts are logged and audited</Text>
+              </View>
+            </Animated.View>
           </ScrollView>
         </KeyboardAvoidingView>
       </View>
@@ -120,14 +187,12 @@ const styles = StyleSheet.create({
     backgroundColor: CivicNoirTheme.colors.surfaceContainerHigh,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: isDesktop ? 64 : 16,
   },
   wrapper: {
     flexDirection: 'row',
     width: '100%',
+    flex: 1,
     maxWidth: 1440,
-    height: isDesktop ? '100%' : 'auto',
-    minHeight: isDesktop ? 700 : 0,
   },
   leftPanel: {
     flex: 7,
@@ -141,16 +206,16 @@ const styles = StyleSheet.create({
     padding: 64,
     backgroundColor: CivicNoirTheme.colors.surfaceContainerHigh,
   },
+  backgroundImageInner: {
+    opacity: 0.4,
+  },
   leftContent: {
     flex: 1,
     justifyContent: 'space-between',
   },
   brandTitle: {
-    fontFamily: CivicNoirTheme.typography.displayXl.fontFamily,
-    fontSize: 72,
-    fontWeight: '700',
+    ...CivicNoirTheme.typography.displayXl,
     color: CivicNoirTheme.colors.primary,
-    letterSpacing: -2.88,
   },
   badgeContainer: {
     backgroundColor: CivicNoirTheme.colors.primary,
@@ -159,10 +224,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   badgeText: {
-    fontFamily: CivicNoirTheme.typography.headlineMd.fontFamily,
-    fontSize: 24,
+    ...CivicNoirTheme.typography.headlineMd,
     color: CivicNoirTheme.colors.onPrimary,
-    fontWeight: '500',
   },
   descContainer: {
     backgroundColor: CivicNoirTheme.colors.surfaceBright,
@@ -178,25 +241,39 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   descText: {
-    fontFamily: CivicNoirTheme.typography.bodyMd.fontFamily,
-    fontSize: 16,
+    ...CivicNoirTheme.typography.bodyMd,
     color: CivicNoirTheme.colors.primary,
     lineHeight: 24,
   },
   rightPanel: {
-    flex: isDesktop ? 5 : 1,
+    flex: 5,
     justifyContent: 'center',
-    zIndex: 20,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  backLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    alignSelf: 'flex-start',
+    paddingVertical: 12,
+    marginBottom: 8,
+  },
+  backLinkPressed: {
+    opacity: 0.6,
+  },
+  backLinkText: {
+    ...CivicNoirTheme.typography.labelSm,
+    color: CivicNoirTheme.colors.secondary,
   },
   authCard: {
     backgroundColor: CivicNoirTheme.colors.surfaceBright,
     borderWidth: 1,
     borderColor: CivicNoirTheme.colors.primary,
-    padding: isDesktop ? 48 : 24,
+    padding: 24,
     shadowColor: '#000',
     shadowOffset: { width: 8, height: 8 },
     shadowOpacity: 1,
@@ -206,6 +283,7 @@ const styles = StyleSheet.create({
   authCardDesktop: {
     marginLeft: -32,
     marginTop: 64,
+    padding: 48,
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -213,74 +291,49 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   mobileTitle: {
-    fontFamily: CivicNoirTheme.typography.headlineLg.fontFamily,
+    ...CivicNoirTheme.typography.headlineLg,
     fontSize: 32,
-    fontWeight: '600',
     color: CivicNoirTheme.colors.primary,
   },
   mobileSubtitle: {
-    fontFamily: CivicNoirTheme.typography.bodyMd.fontFamily,
-    fontSize: 16,
+    ...CivicNoirTheme.typography.bodyMd,
     color: CivicNoirTheme.colors.secondary,
     marginTop: 8,
   },
   headerBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
     borderBottomWidth: 1,
     borderBottomColor: CivicNoirTheme.colors.outline,
     paddingBottom: 16,
     marginBottom: 32,
   },
   headerBoxTitle: {
-    fontFamily: CivicNoirTheme.typography.labelSm.fontFamily,
+    ...CivicNoirTheme.typography.labelSm,
     fontSize: 16,
-    fontWeight: '600',
     letterSpacing: 2,
     color: CivicNoirTheme.colors.primary,
   },
   formContainer: {
     gap: 24,
   },
-  inputGroup: {
-    gap: 8,
-  },
-  inputLabel: {
-    fontFamily: CivicNoirTheme.typography.labelSm.fontFamily,
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 1,
-    color: CivicNoirTheme.colors.primary,
-  },
-  inputWrapper: {
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: CivicNoirTheme.colors.outline,
-    padding: 16,
-    fontFamily: CivicNoirTheme.typography.bodyMd.fontFamily,
-    fontSize: 16,
-    color: CivicNoirTheme.colors.primary,
-    backgroundColor: 'transparent',
-  },
-  inputIcon: {
-    position: 'absolute',
-    right: 16,
-  },
   submitButton: {
-    backgroundColor: CivicNoirTheme.colors.primary,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 24,
-    marginTop: 16,
+    marginTop: 8,
   },
-  submitText: {
-    fontFamily: CivicNoirTheme.typography.labelSm.fontFamily,
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 1,
-    color: CivicNoirTheme.colors.onPrimary,
+  securityFooter: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 32,
+    paddingTop: 32,
+    borderTopWidth: 1,
+    borderTopColor: CivicNoirTheme.colors.outlineFaint,
+  },
+  securityText: {
+    fontFamily: CivicNoirTheme.typography.bodyMd.fontFamily,
+    fontSize: 14,
+    color: CivicNoirTheme.colors.outline,
   },
 });
