@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Access - CIVIC-REZO</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@500;600;700&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#f7f9ff",
+                        "surface-container-high": "#e6e8ee",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-secondary-fixed-variant": "#454747",
+                        "tertiary-container": "#191c1e",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "tertiary-fixed-dim": "#c5c6c8",
+                        "primary": "#000000",
+                        "on-background": "#181c20",
+                        "surface-variant": "#e0e2e8",
+                        "surface-container": "#eceef3",
+                        "on-primary": "#ffffff",
+                        "background": "#f7f9ff",
+                        "secondary": "#5d5f5f",
+                        "tertiary": "#000000",
+                        "on-tertiary-fixed-variant": "#454749",
+                        "outline": "#7e7576",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#191c1e",
+                        "on-surface": "#181c20",
+                        "outline-variant": "#cfc4c5",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eef1f6",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e1e2e4",
+                        "surface-container-highest": "#e0e2e8",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "inverse-surface": "#2d3135",
+                        "inverse-primary": "#c6c6c6",
+                        "surface-container-low": "#f1f4f9",
+                        "on-secondary-container": "#616363",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "primary-fixed": "#e2e2e2",
+                        "on-primary-container": "#848484",
+                        "surface-tint": "#5e5e5e",
+                        "surface-dim": "#d8dadf",
+                        "surface": "#f7f9ff",
+                        "secondary-fixed": "#e2e2e2",
+                        "primary-container": "#1b1b1b",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#1b1b1b",
+                        "on-tertiary-container": "#828486",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#dfe0e0",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#4c4546",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin": "64px",
+                        "gutter": "32px",
+                        "container-max": "1440px",
+                        "unit": "8px",
+                        "stack-md": "32px",
+                        "stack-sm": "16px",
+                        "stack-lg": "80px"
+                    },
+                    fontFamily: {
+                        "label-sm": ["Inter"],
+                        "display-xl": ["Epilogue"],
+                        "headline-md": ["Epilogue"],
+                        "headline-lg": ["Epilogue"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    fontSize: {
+                        "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "headline-lg": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface-container min-h-screen text-on-surface antialiased selection:bg-primary selection:text-on-primary">
+<main class="grid grid-cols-1 md:grid-cols-12 min-h-screen w-full">
+<!-- Structural Graphic Area (Left Side) -->
+<section class="hidden md:block md:col-span-6 lg:col-span-7 border-r border-outline-variant bg-surface-bright relative overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Brutalist concrete architecture interior with dramatic natural light casting sharp geometric shadows, minimalist, monochromatic, high contrast" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAbCvKwJ7t9Kb8Zkfclla77vWYPZrPfHjrO4r1_y3u7TqDJHqrY4RQ7rcc-VnQYXRVL3w1TK1Qh2EV1ZqGo2EIlTb8Na5R-IlZihXZFJNLk1nnbgeGpfofEwH-pThvJ-JDNUSHQf_uufjTAPYP-GgT4oHCjn6ZSJRU2aPDU61_mieX6LJmRv2ZDbw9CI18FslVjL3viL5gD1EoczrsBfCLkfNfT9rZ_J9SblfOAb8LTVyikR1Bnr2Y0zFnNBvUcmT1Bxu57HNHPw_TO');"></div>
+<!-- Minimal Grid Overlay to reinforce 'Architectural grid' -->
+<div class="absolute inset-0 border-x border-outline/10 ml-[25%] w-[50%] pointer-events-none"></div>
+<div class="absolute top-margin left-margin z-10 mix-blend-difference text-white">
+<span class="font-display-xl text-display-xl block leading-none">CIVIC<br/>REZO</span>
+<span class="font-label-sm text-label-sm tracking-[0.2em] uppercase mt-unit block">Institutional Portal</span>
+</div>
+</section>
+<!-- Login Form Area (Right Side) -->
+<section class="col-span-1 md:col-span-6 lg:col-span-5 flex flex-col justify-center bg-surface-container-lowest px-margin py-stack-lg relative">
+<!-- Mobile Brand Header (Hidden on Desktop) -->
+<div class="md:hidden mb-stack-lg">
+<span class="font-headline-lg text-headline-lg block leading-none text-primary">CIVIC-REZO</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mt-unit block">Institutional Portal</span>
+</div>
+<div class="w-full max-w-md mx-auto">
+<header class="mb-stack-md">
+<h1 class="font-headline-md text-headline-md text-primary mb-unit">Admin Access</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Secure login for authorized personnel only.</p>
+</header>
+<form action="#" class="flex flex-col gap-stack-sm border border-outline-variant p-stack-md bg-surface-bright" method="POST">
+<div class="flex flex-col gap-unit">
+<label class="font-label-sm text-label-sm text-on-surface uppercase flex items-center gap-2" for="admin-id">
+<span class="material-symbols-outlined text-[16px]">badge</span>
+                            Admin ID / Credential
+                        </label>
+<input class="border border-outline bg-surface-container-lowest text-on-surface p-4 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors w-full rounded-none placeholder-on-surface-variant/50" id="admin-id" name="admin-id" placeholder="Enter numeric identifier" required="" type="text"/>
+</div>
+<div class="flex flex-col gap-unit mt-unit">
+<label class="font-label-sm text-label-sm text-on-surface uppercase flex justify-between items-center" for="security-key">
+<span class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">key</span>
+                                Security Passkey
+                            </span>
+</label>
+<input class="border border-outline bg-surface-container-lowest text-on-surface p-4 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors w-full rounded-none placeholder-on-surface-variant/50" id="security-key" name="security-key" placeholder="••••••••••••" required="" type="password"/>
+</div>
+<div class="mt-stack-md">
+<button class="w-full bg-primary text-on-primary border border-primary py-4 px-6 font-label-sm text-label-sm uppercase tracking-widest flex items-center justify-between group hover:bg-surface-container-lowest hover:text-primary transition-all duration-300" type="submit">
+<span>Verify Identity</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</form>
+<div class="mt-stack-md flex justify-between items-center border-t border-outline-variant pt-unit">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors uppercase" href="#">Request Access</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 uppercase" href="#">
+<span class="material-symbols-outlined text-[14px]">support_agent</span> Protocol Help
+                    </a>
+</div>
+</div>
+</section>
+</main>
+</body></html>
