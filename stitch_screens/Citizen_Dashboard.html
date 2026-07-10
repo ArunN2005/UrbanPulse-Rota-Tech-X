@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CIVIC-REZO Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;900&amp;family=Inter:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f7f9ff",
+                        "surface-container-high": "#e6e8ee",
+                        "on-primary-fixed-variant": "#474747",
+                        "on-secondary-fixed-variant": "#454747",
+                        "tertiary-container": "#191c1e",
+                        "primary-fixed-dim": "#c6c6c6",
+                        "tertiary-fixed-dim": "#c5c6c8",
+                        "primary": "#000000",
+                        "on-background": "#181c20",
+                        "surface-variant": "#e0e2e8",
+                        "surface-container": "#eceef3",
+                        "on-primary": "#ffffff",
+                        "background": "#f7f9ff",
+                        "secondary": "#5d5f5f",
+                        "tertiary": "#000000",
+                        "on-tertiary-fixed-variant": "#454749",
+                        "outline": "#7e7576",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed": "#191c1e",
+                        "on-surface": "#181c20",
+                        "outline-variant": "#cfc4c5",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eef1f6",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#e1e2e4",
+                        "surface-container-highest": "#e0e2e8",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "inverse-surface": "#2d3135",
+                        "inverse-primary": "#c6c6c6",
+                        "surface-container-low": "#f1f4f9",
+                        "on-secondary-container": "#616363",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "primary-fixed": "#e2e2e2",
+                        "on-primary-container": "#848484",
+                        "surface-tint": "#5e5e5e",
+                        "surface-dim": "#d8dadf",
+                        "surface": "#f7f9ff",
+                        "secondary-fixed": "#e2e2e2",
+                        "primary-container": "#1b1b1b",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed": "#1b1b1b",
+                        "on-tertiary-container": "#828486",
+                        "error-container": "#ffdad6",
+                        "secondary-container": "#dfe0e0",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#4c4546",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin": "64px",
+                        "gutter": "32px",
+                        "container-max": "1440px",
+                        "unit": "8px",
+                        "stack-md": "32px",
+                        "stack-sm": "16px",
+                        "stack-lg": "80px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "display-xl": ["Epilogue"],
+                        "headline-md": ["Epilogue"],
+                        "headline-lg": ["Epilogue"],
+                        "body-md": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "1", "letterSpacing": "0.08em", "fontWeight": "600" }],
+                        "display-xl": ["72px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "headline-lg": ["40px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background h-screen overflow-hidden flex font-body-md text-body-md selection:bg-primary selection:text-on-primary">
+<!-- SideNavBar Component -->
+<nav class="fixed left-0 top-0 h-screen w-64 border-r border-black/10 bg-white flex flex-col h-full py-12 font-['Epilogue'] tracking-tight antialiased z-50">
+<!-- Header -->
+<div class="px-6 mb-12">
+<div class="text-lg font-black tracking-tighter uppercase text-black">CIVIC-REZO</div>
+<div class="font-label-sm text-label-sm text-stone-500 mt-2">Institutional Portal</div>
+</div>
+<!-- Tabs -->
+<ul class="flex-1 flex flex-col gap-unit">
+<li>
+<a class="flex items-center gap-4 text-stone-400 font-medium pl-6 py-3 hover:text-black hover:bg-stone-50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span> Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 text-stone-400 font-medium pl-6 py-3 hover:text-black hover:bg-stone-50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span> Network
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 text-stone-400 font-medium pl-6 py-3 hover:text-black hover:bg-stone-50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span> Initiatives
+                </a>
+</li>
+<!-- Active State -->
+<li>
+<a class="flex items-center gap-4 text-black font-bold border-l-2 border-black -ml-[1px] pl-6 py-3 hover:bg-stone-50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="forum" data-weight="fill" style="font-variation-settings: 'FILL' 1;">forum</span> Civic Feed
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-4 text-stone-400 font-medium pl-6 py-3 hover:text-black hover:bg-stone-50 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span> Settings
+                </a>
+</li>
+</ul>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 ml-64 flex flex-col h-screen relative">
+<!-- TopNavBar Component -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-20 border-b border-black/10 bg-stone-50 flex justify-between items-center px-12 z-40 font-['Epilogue'] text-xs uppercase tracking-widest text-black">
+<!-- Search Bar (on_left) -->
+<div class="flex items-center gap-2 text-stone-400 border border-black/10 px-4 py-2 bg-white w-64 focus-within:border-black transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="search">search</span>
+<input class="bg-transparent border-none outline-none w-full text-black placeholder-stone-400 font-label-sm text-label-sm p-0 focus:ring-0" placeholder="Search..." type="text"/>
+</div>
+<!-- Trailing Icons & Profile -->
+<div class="flex items-center gap-6">
+<button class="cursor-pointer hover:opacity-60 transition-opacity active:scale-95 text-black flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="cursor-pointer hover:opacity-60 transition-opacity active:scale-95 text-black flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-black/10 cursor-pointer hover:opacity-60 transition-opacity active:scale-95">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="Close up portrait of a professional man in a modern office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-WEzTNHrdQYBfBsJVajiTUwKwJQ_tc5Pfr9hade76zigKpsGP4BHtyrisP_tCFQN5wxt_lbqqSc-m7qRktb7skLSBMiISoc-x3mdSclj986TpbKVceYSvTz6Xp4qCH08dEVpPCCyvX2LBytEKu2QD7Z1YpY2quj3h_CRN6mezd54MTi3nEfXoWYbZOOqrwEes3rqK3xYH5mAhtRvTD8JKno-LBdkcQfO3dZU7uusayYo2eonl7ljFtLm31DJBBd8prCHsLF5bfMJ7"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto pt-20">
+<div class="p-margin max-w-container-max mx-auto">
+<!-- Page Header -->
+<div class="mb-stack-lg">
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-stack-sm">Civic Feed</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">Real-time updates and reports from your local network. Engage with initiatives shaping your structural environment.</p>
+</div>
+<!-- Layout Grid (12 Columns) -->
+<div class="grid grid-cols-12 gap-gutter items-start">
+<!-- Main Feed Stream (Cols 1-8) -->
+<div class="col-span-8 flex flex-col gap-stack-lg">
+<!-- Feed Item 1: Large Imagery -->
+<article class="bg-surface-container-lowest border border-outline-variant flex flex-col">
+<!-- Metadata Header -->
+<div class="p-stack-sm flex items-center justify-between border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-high rounded-none overflow-hidden border border-outline-variant">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="Portrait of a female civic engineer wearing a hard hat in a construction zone" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMlDd9WEIC2-g7pfl-IApjtk-P3Jx2H9EIAuds_zGLUdgx7MOfp6yQa7Nb253WdFw3AgKBKeMYH7jZcGysl7hZaauhGUJo7T7P6HnqzszOipgMaYCVWBZoFMtrozsQ3nK3tZGUbiUqD3AA3BqvKOWK5k01ZPDBnDnDAhyqrDzq--1UDc1wLIDV67tULAeCsfFh_eOC4g_wWfag5YevMpYUJKBfzdWHLWEq5wFV-9C9-P3vN0717SCKgARyKuKJMDgOSFv8_AodsrA7"/>
+</div>
+<div>
+<div class="font-label-sm text-label-sm text-on-background">Elena Rostova</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-1">Infrastructure Dept • 2h ago</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-background transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="more_horiz">more_horiz</span>
+</button>
+</div>
+<!-- Immersive Content Area -->
+<div class="w-full aspect-[4/3] bg-surface-container-high border-b border-outline-variant overflow-hidden relative">
+<img alt="Construction site" class="w-full h-full object-cover" data-alt="Wide angle view of a new urban park construction site with heavy machinery and newly planted trees under a clear blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtpQgjtluZuPA6JboJpDidvNgyHxmYTf0kWP73IG8p155YsVDOWEJS4w9BDTTBdCrVmejYoWKrYWf5AX8wzyaMh2q2VHA6z9-Hhh4s8a6OJ8Bwsy8OeB7rvYUx_KSz4dZ_8UjP1MujeXaZeGaUXbGxb7uNgpckLGxjCcR_8WJ7SL3p_o0jnsVrI4pTRX2TuuWBBTan4jLWNcFWX_3rEuR7xJvM6_rPUABMw2NknLAnqqTBQVjsZDLGsGswEVspS6IIzhuKAtRX3QV9"/>
+<div class="absolute bottom-4 left-4 bg-surface-container-lowest border border-outline-variant px-3 py-1 font-label-sm text-label-sm text-on-background flex items-center gap-2 shadow-none">
+<span class="material-symbols-outlined text-[14px]" data-icon="location_on">location_on</span> Riverfront District
+                                </div>
+</div>
+<!-- Engagement & Caption -->
+<div class="p-stack-md flex flex-col gap-stack-sm">
+<div class="flex gap-6 mb-2">
+<button class="flex items-center gap-2 text-on-background font-label-sm text-label-sm uppercase tracking-widest hover:opacity-60 transition-opacity">
+<span class="material-symbols-outlined" data-icon="thumb_up">thumb_up</span> Appreciate
+                                    </button>
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-on-background font-label-sm text-label-sm uppercase tracking-widest transition-colors">
+<span class="material-symbols-outlined" data-icon="chat_bubble_outline">chat_bubble_outline</span> Discuss (4)
+                                    </button>
+</div>
+<div class="font-body-md text-body-md text-on-background leading-relaxed">
+                                    Phase 2 of the Riverfront Revitalization project is officially underway. We've completed the foundational grading and are moving onto installing the new structural pathways. The grid alignment looks pristine. Expected completion by late Q3.
+                                </div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-2">
+                                    #UrbanDevelopment #Riverfront #Progress
+                                </div>
+</div>
+</article>
+<!-- Feed Item 2: Text Heavy with Map -->
+<article class="bg-surface-container-lowest border border-outline-variant flex flex-col">
+<div class="p-stack-sm flex items-center justify-between border-b border-outline-variant">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-high rounded-none flex items-center justify-center border border-outline-variant text-on-background font-headline-md text-headline-md">
+                                        CW
+                                    </div>
+<div>
+<div class="font-label-sm text-label-sm text-on-background">Citizens Watch</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-1">Community Group • 5h ago</div>
+</div>
+</div>
+</div>
+<div class="w-full h-64 bg-surface-container-high border-b border-outline-variant overflow-hidden relative">
+<img alt="Map view" class="w-full h-full object-cover opacity-80 mix-blend-multiply" data-alt="Top down view of a stylized digital city map showing street grids and highlighted transit routes in a minimalist monochrome style" data-location="Berlin" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRUcjeEs3xTaxjZe2WJbckEPJUzzrszDmwcj6tvj5dMviiJw-ewtg4LRP-1B-JW9E406lDHxuKpHX1puypw4Vs6l1V--FIR2NEvFS5463x5qEox5wOscMl7eL7BWnvYSVw6_tzoB3O80GUi6IhR_Lssteue1H3xRQ1mw0OtAz5DwbbtFc5l7F8m_jf-lt47zv2pLUg_CVosFnJQTk0j4_aVz51zJE1LJTiCrYBlihtUD5R5RYKgqtXIRV9v-nyLotSH9e9ZY6yj3GV"/>
+</div>
+<div class="p-stack-md flex flex-col gap-stack-sm">
+<h2 class="font-headline-md text-headline-md text-on-background mb-2">Proposed Zoning Adjustments: Sector 4</h2>
+<div class="flex gap-6 mb-2">
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-on-background font-label-sm text-label-sm uppercase tracking-widest transition-colors">
+<span class="material-symbols-outlined" data-icon="thumb_up">thumb_up</span> Appreciate
+                                    </button>
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-on-background font-label-sm text-label-sm uppercase tracking-widest transition-colors">
+<span class="material-symbols-outlined" data-icon="chat_bubble_outline">chat_bubble_outline</span> Discuss (12)
+                                    </button>
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-on-background font-label-sm text-label-sm uppercase tracking-widest transition-colors ml-auto">
+<span class="material-symbols-outlined" data-icon="ios_share">ios_share</span> Share
+                                    </button>
+</div>
+<div class="font-body-md text-body-md text-on-background leading-relaxed">
+                                    Review the latest architectural outlines for Sector 4. The proposal aims to increase high-density residential zones while maintaining strict 1px grid adherence in public plazas. Full documentation and structural blueprints are now attached for public commentary.
+                                </div>
+</div>
+</article>
+</div>
+<!-- Side Widgets (Cols 9-12) -->
+<aside class="col-span-4 flex flex-col gap-stack-md sticky top-28">
+<!-- Analytical Stat Widget -->
+<div class="bg-surface-container-lowest border border-outline-variant p-stack-md flex flex-col gap-stack-sm">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest border-b border-outline-variant pb-4">Network Activity</h3>
+<div class="flex items-end gap-2 mt-4">
+<span class="font-display-xl text-display-xl text-on-background tracking-tighter">142</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant mb-3 uppercase tracking-widest">Reports</span>
+</div>
+<div class="w-full h-px bg-surface-container-high mt-4 relative">
+<div class="absolute left-0 top-0 h-full w-[65%] bg-primary"></div>
+</div>
+<div class="font-label-sm text-label-sm text-on-background mt-2 text-right">+12% vs prior cycle</div>
+</div>
+<!-- Structural Initiatives Widget -->
+<div class="bg-surface-container-lowest border border-outline-variant flex flex-col">
+<div class="p-stack-sm border-b border-outline-variant">
+<h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest">Active Frameworks</h3>
+</div>
+<div class="flex flex-col">
+<a class="p-stack-sm border-b border-outline-variant hover:bg-surface-bright transition-colors flex justify-between items-center group" href="#">
+<div>
+<div class="font-label-sm text-label-sm text-on-background mb-1">Green Canopy Grid</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-[14px]">Environmental Integration</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-background transition-colors" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<a class="p-stack-sm border-b border-outline-variant hover:bg-surface-bright transition-colors flex justify-between items-center group" href="#">
+<div>
+<div class="font-label-sm text-label-sm text-on-background mb-1">Transit Line Extension</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-[14px]">Infrastructure Architecture</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-background transition-colors" data-icon="arrow_forward">arrow_forward</span>
+</a>
+<a class="p-stack-sm hover:bg-surface-bright transition-colors flex justify-between items-center group" href="#">
+<div>
+<div class="font-label-sm text-label-sm text-on-background mb-1">Public Data Hub</div>
+<div class="font-body-md text-body-md text-on-surface-variant text-[14px]">Digital Infrastructure</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-on-background transition-colors" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Simple Call to Action Widget -->
+<div class="bg-surface-container-lowest border border-outline-variant p-stack-md flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-[32px] text-on-background mb-4" data-icon="add_box">add_box</span>
+<div class="font-label-sm text-label-sm text-on-background mb-4">SUBMIT A NEW REPORT</div>
+<button class="w-full bg-primary text-on-primary font-label-sm text-label-sm uppercase tracking-widest py-4 hover:bg-surface-tint transition-colors">
+                                Initiate Draft
+                            </button>
+</div>
+</aside>
+</div>
+</div>
+<!-- Bottom spacing for extravagant whitespace scroll feeling -->
+<div class="h-32"></div>
+</main>
+</div>
+</body></html>
